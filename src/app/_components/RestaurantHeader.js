@@ -5,7 +5,7 @@ import logo from '../../../public/food-logo.png';
 
 const RestaurantHeader = () => {
     return (
-        <header className="w-full bg-blue-600 py-4 px-6 shadow-md">
+        <header className="w-full py-4 px-6 shadow-md">
             <div className="max-w-7xl mx-auto flex justify-between items-center">
                 {/* Logo */}
                 <div className="flex items-center space-x-2">
