@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(params) {
     await mongoose.connect(connectionStr, { useNewUrlParser: true })
-    const data = restaurantSchema.find()
+    const data = await restaurantSchema.find()
     console.log(data)
-    return NextResponse.json({ result: true })
+    return NextResponse.json({ result: data })
 }
