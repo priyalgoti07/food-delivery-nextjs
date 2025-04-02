@@ -9,8 +9,18 @@ const RestaurantSignUp = () => {
   const [address, setAddress] = useState('');
   const [contact, setContact] = useState('');
 
-  const handleSubmit = () => {
-    console.log(name,email)
+  const handleSubmit = async () => {
+    console.log(name, email)
+    let createUser = await fetch('http://localhost:3000/api/restaurant',
+      {
+        method: "POST",
+        body: JSON.stringify({ email, password, name, city, address, contact })
+      })
+    createUser = await createUser.json()
+    if (createUser.success) {
+      alert("User add Successfully")
+    }
+    console.log(createUser)
   }
 
   return (
