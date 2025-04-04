@@ -9,7 +9,8 @@ const RestaurantHeader = () => {
     const [details, setDetails] = useState();
     const router = useRouter();
     const pathName = usePathname();
-    const [popup, setPopup] = useState(false)
+    const [popup, setPopup] = useState(false);
+
     useEffect(() => {
         let storeData = localStorage.getItem("restaurantUser")
         console.log(storeData)
