@@ -12,9 +12,20 @@ export async function GET(params) {
 
 export async function POST(request, content) {
     let payload = await request.json();
-    console.log(payload)
     await mongoose.connect(connectionStr)
-    let restaurant = await restaurantSchema(payload);
-    const result = await restaurant.save()
-    return NextResponse.json({ result: result, success: true })
+    let result;
+    let success = false;
+    if (payload.login) {
+        result = await restaurantSchema.findOne({ email: payload.email, password: payload.password });
+        if (result) {
+            success = true;
+        }
+    } else {
+        console.log(payload)
+        let restaurant = await restaurantSchema(payload);
+        result = await restaurant.save()
+        success = true;
+    }
+
+    return NextResponse.json({ result: result, success })
 }
