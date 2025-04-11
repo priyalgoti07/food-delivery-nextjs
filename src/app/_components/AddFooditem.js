@@ -5,8 +5,24 @@ const AddFooditem = () => {
     const [price, setPrice] = useState('');
     const [path, setPath] = useState('');
     const [description, setDescription] = useState('');
-    const handladdFood = () => {
+    const handladdFood = async () => {
         console.log(name, path, price, description)
+        const restaurantUser = JSON.parse(localStorage.getItem("restaurantUser"))
+        console.log("restaurantId", restaurantUser._id)
+        let response = await fetch('http://localhost:3000/api/restaurant/foods', {
+            method: "POST",
+            body: JSON.stringify({
+                name,
+                img_path: path,
+                price,
+                description,
+                ...(restaurantUser?._id && { resto_id: restaurantUser._id })
+            })
+        })
+        response = await response.json()
+        if (response.success) {
+            alert("food item add")
+        }
     }
     return (
         <div className="flex flex-col items-center justify-center min-h-1/4bg-gray-100">
