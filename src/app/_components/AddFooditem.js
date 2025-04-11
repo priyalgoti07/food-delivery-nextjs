@@ -22,6 +22,8 @@ const AddFooditem = () => {
         response = await response.json()
         if (response.success) {
             alert("food item add")
+        } else {
+            alert("food item not add")
         }
     }
     return (
