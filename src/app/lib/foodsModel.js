@@ -4,7 +4,7 @@ const foodsModel = new mongoose.Schema({
     name: String,
     price: String,
     img_path: String,
-    descripttion: String,
+    description: String,  
     resto_id:mongoose.Schema.Types.ObjectId
 })
 

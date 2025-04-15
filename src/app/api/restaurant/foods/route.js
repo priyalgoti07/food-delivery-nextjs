@@ -8,7 +8,9 @@ export async function POST(request) {
     const payload = await request.json();
     await mongoose.connect(connectionStr, { useNewUrlParser: true })
     const food = await foodsSchema(payload)
+    console.log("food---------->",payload,food)
     const result = await food.save()
+    console.log("i am post",result)
     if (result) {
         success = true
     }

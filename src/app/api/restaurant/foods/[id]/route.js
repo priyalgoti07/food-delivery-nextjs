@@ -9,6 +9,7 @@ export async function GET(request, content) {
     let success = false;
     await mongoose.connect(connectionStr, { useNewUrlParser: true })
     const result = await foodsSchema.find({ resto_id: id});
+    console.log("result",result)
     if (result) {
         success = true;
     } else {

@@ -7,7 +7,7 @@ const AddFooditem = () => {
     const [description, setDescription] = useState('');
     const handladdFood = async () => {
         console.log(name, path, price, description)
-        const restaurantUser = JSON.parse(localStorage.getItem("restaurantUser"))
+        const restaurantUser = JSON.parse(localStorage?.getItem("restaurantUser"))
         console.log("restaurantId", restaurantUser._id)
         let response = await fetch('http://localhost:3000/api/restaurant/foods', {
             method: "POST",
