@@ -15,7 +15,7 @@ const EditForm = () => {
             {
                 params?.id ?
                     <div className='mt-10'>
-                        <AddFooditem />
+                        <AddFooditem  id={params.id}/>
                     </div>
                     : <h1>Loding</h1>}
             <RestaurantFooter />

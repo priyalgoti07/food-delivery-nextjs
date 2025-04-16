@@ -1,16 +1,34 @@
 import React, { useEffect, useState } from 'react'
 
-const AddFooditem = ({ setAddItem, editItem = "" }) => {
-    console.log("EditItem==============>", setAddItem, editItem)
+const AddFooditem = ({ setAddItem, id }) => {
+    console.log("ID==============>", id)
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
     const [path, setPath] = useState('');
     const [description, setDescription] = useState('');
     const [error, setError] = useState(false);
 
-    useEffect(()=>{
-        console.log("i am data")
-    })
+    useEffect(() => {
+        const handleUpdateRecord = async () => {
+            console.log("i am data")
+            try {
+                let response = await fetch(`http://localhost:3000/api/restaurant/foods/edit/${id}`)
+                response = await response?.json()
+                if (response.success) {
+                    setName(response?.result?.name);
+                    setPrice(response?.result?.price);
+                    setPath(response?.result?.img_path);
+                    setDescription(response?.result?.description);
+                }
+                console.log("response", response)
+            } catch (error) {
+                console.error("Error", error)
+            }
+        }
+        handleUpdateRecord()
+    }, [])
+
+
 
     const handladdFood = async () => {
         console.log(name, path, price, description)
