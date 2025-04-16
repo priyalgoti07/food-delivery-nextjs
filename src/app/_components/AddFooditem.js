@@ -9,7 +9,7 @@ const AddFooditem = ({ setAddItem, editItem = "" }) => {
     const [error, setError] = useState(false);
 
     useEffect(()=>{
-        
+        console.log("i am data")
     })
 
     const handladdFood = async () => {
