@@ -7,10 +7,12 @@ export async function POST(request) {
     let success = false;
     const payload = await request.json();
     await mongoose.connect(connectionStr, { useNewUrlParser: true })
+    if (!payload.name || !payload.price || !payload.img_path || !payload.description) {
+        return NextResponse.json({ result: "required file not found", success: false })
+    }
     const food = await foodsSchema(payload)
-    console.log("food---------->",payload,food)
     const result = await food.save()
-    console.log("i am post",result)
+    console.log("i am post", result)
     if (result) {
         success = true
     }
