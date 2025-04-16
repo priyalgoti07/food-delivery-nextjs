@@ -1,18 +1,19 @@
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 
-const AddFooditem = ({ setAddItem, id }) => {
-    console.log("ID==============>", id)
+const AddFooditem = ({ setAddItem, editId }) => {
+    console.log("se", setAddItem)
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
     const [path, setPath] = useState('');
     const [description, setDescription] = useState('');
     const [error, setError] = useState(false);
-
+    const route = useRouter()
     useEffect(() => {
         const handleUpdateRecord = async () => {
             console.log("i am data")
             try {
-                let response = await fetch(`http://localhost:3000/api/restaurant/foods/edit/${id}`)
+                let response = await fetch(`http://localhost:3000/api/restaurant/foods/edit/${editId}`)
                 response = await response?.json()
                 if (response.success) {
                     setName(response?.result?.name);
@@ -25,7 +26,7 @@ const AddFooditem = ({ setAddItem, id }) => {
                 console.error("Error", error)
             }
         }
-        handleUpdateRecord()
+        if (editId) handleUpdateRecord()
     }, [])
 
 
@@ -40,25 +41,42 @@ const AddFooditem = ({ setAddItem, id }) => {
         }
         //If any error, stop here
         if (hasError) return;
-        const restaurantUser = JSON.parse(localStorage?.getItem("restaurantUser"))
-        console.log("restaurantId", restaurantUser._id)
-        let response = await fetch('http://localhost:3000/api/restaurant/foods', {
-            method: "POST",
-            body: JSON.stringify({
-                name,
-                img_path: path,
-                price,
-                description,
-                ...(restaurantUser?._id && { resto_id: restaurantUser._id })
-            })
-        })
-        response = await response.json()
-        if (response.success) {
-            alert("food item add")
-            setAddItem(false);
+        if (editId) {
+            try {
+                let response = await fetch(`http://localhost:3000/api/restaurant/foods/edit/${editId}`, { method: "PUT", body: JSON.stringify({ name, price, path, description }) })
+                response = await response.json();
+                if (response.success) {
+                    alert("food item edit");
+                    route.replace("/restaurant/dashboard")
+                } else {
+                    alert("Data is not updated please try again")
+                }
+            } catch (error) {
+                console.error("Error", error)
+            }
         } else {
-            alert("food item not add")
+            const restaurantUser = JSON.parse(localStorage?.getItem("restaurantUser"))
+            console.log("restaurantId", restaurantUser._id)
+            let response = await fetch('http://localhost:3000/api/restaurant/foods', {
+                method: "POST",
+                body: JSON.stringify({
+                    name,
+                    img_path: path,
+                    price,
+                    description,
+                    ...(restaurantUser?._id && { resto_id: restaurantUser._id })
+                })
+            })
+            response = await response.json()
+            if (response.success) {
+                alert("food item add")
+                setAddItem(false);
+            } else {
+                alert("food item not add")
+            }
         }
+
+
     }
     return (
         <div className="flex flex-col items-center justify-center min-h-1/4bg-gray-100">
@@ -101,7 +119,7 @@ const AddFooditem = ({ setAddItem, id }) => {
                 {error && !description && <p className='text-red-500 text-[12px] mb-2'>enter description</p>}
                 <button type='submit' className="w-full p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer"
                     onClick={handladdFood}
-                >Add Food item</button>
+                >{`${editId ? "Edit" : "Add"}  Foo item`}</button>
             </div>
         </div>
 

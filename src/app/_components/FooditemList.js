@@ -38,8 +38,6 @@ const FooditemList = () => {
     }
 
     const updateItem = (id) => {
-        // setEditItem(id);
-        // setAddItem(true);
         router.push(`dashboard/${id}`)
     }
 
@@ -64,11 +62,11 @@ const FooditemList = () => {
                                     <td className="p-2 border">{key}</td>
                                     <td className="p-2 border">{item.name}</td>
                                     <td className="p-2 border">{item.price}</td>
-                                    <td className="p-2 border">{item.descrition}</td>
+                                    <td className="p-2 border">{item.description}</td>
                                     <td className="p-2 border"><img src={item?.img_path || null} className='w-[80px]' alt={item.name} /></td>
                                     <td className="p-2 border space-x-2">
                                         <button className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600" onClick={() => updateItem(item._id)}>Edit</button>
-                                        <button className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600" onClick={() => deletItem(item)}>Delete</button>
+                                        <button className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600" onClick={() => deletItem(item._id)}>Delete</button>
                                     </td>
                                 </tr>
 
