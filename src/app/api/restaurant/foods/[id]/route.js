@@ -18,12 +18,12 @@ export async function GET(request, content) {
 
 export async function DELETE(request, content) {
     const id = content.params.id;
-    let sucess = false;
+    let success = false;
     await mongoose.connect(connectionStr, { useNewUrlParser: true });
     const result = await foodsSchema.deleteOne({ _id: id })
     if (result.deletedCount > 0) {
-        sucess = true;
+        success = true;
     }
-    return NextResponse.json({ result: result, sucess })
+    return NextResponse.json({ result: result, success })
 }
 

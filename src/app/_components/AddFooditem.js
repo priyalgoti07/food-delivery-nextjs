@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
-const AddFooditem = () => {
+const AddFooditem = ({setAddItem}) => {
+    console.log("props", setAddItem)
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
     const [path, setPath] = useState('');
@@ -22,6 +23,7 @@ const AddFooditem = () => {
         response = await response.json()
         if (response.success) {
             alert("food item add")
+            setAddItem(false);
         } else {
             alert("food item not add")
         }

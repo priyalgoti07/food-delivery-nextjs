@@ -33,7 +33,7 @@ const Dashboard = () => {
             </div>
 
             <div className="px-6 py-4">
-                {addItem ? <AddFooditem /> : <FooditemList />}
+                {addItem ? <AddFooditem setAddItem={setAddItem}/> : <FooditemList />}
             </div>
         </>
     );
