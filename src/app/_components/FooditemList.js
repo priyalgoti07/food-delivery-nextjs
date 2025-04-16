@@ -1,7 +1,9 @@
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 const FooditemList = () => {
     const [fooditems, setFooditems] = useState([]);
+    const router = useRouter()
     useEffect(() => {
         loadFooditems()
     }, [])
@@ -35,6 +37,12 @@ const FooditemList = () => {
         }
     }
 
+    const updateItem = (id) => {
+        // setEditItem(id);
+        // setAddItem(true);
+        router.push(`dashboard/${id}`)
+    }
+
     return (
         <div className="p-4">
             <h1 className="text-xl font-bold mb-4">Food Item List</h1>
@@ -50,7 +58,7 @@ const FooditemList = () => {
                 </thead>
                 <tbody>
                     {
-                        fooditems?.map((item, key) => {
+                        fooditems.length > 0 && fooditems?.map((item, key) => {
                             return (
                                 <tr className="divide-x divide-gray-300" key={key}>
                                     <td className="p-2 border">{key}</td>
@@ -59,8 +67,8 @@ const FooditemList = () => {
                                     <td className="p-2 border">{item.descrition}</td>
                                     <td className="p-2 border"><img src={item?.img_path || null} className='w-[80px]' alt={item.name} /></td>
                                     <td className="p-2 border space-x-2">
-                                        <button className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Edit</button>
-                                        <button className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600" onClick={() => deletItem(item._id)}>Delete</button>
+                                        <button className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600" onClick={() => updateItem(item._id)}>Edit</button>
+                                        <button className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600" onClick={() => deletItem(item)}>Delete</button>
                                     </td>
                                 </tr>
 

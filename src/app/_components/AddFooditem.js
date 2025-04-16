@@ -1,12 +1,17 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
-const AddFooditem = ({ setAddItem }) => {
-    console.log("props", setAddItem)
+const AddFooditem = ({ setAddItem, editItem = "" }) => {
+    console.log("EditItem==============>", setAddItem, editItem)
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
     const [path, setPath] = useState('');
     const [description, setDescription] = useState('');
     const [error, setError] = useState(false);
+
+    useEffect(()=>{
+        
+    })
+
     const handladdFood = async () => {
         console.log(name, path, price, description)
         let hasError = false;

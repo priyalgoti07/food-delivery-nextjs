@@ -27,3 +27,4 @@ export async function DELETE(request, content) {
     return NextResponse.json({ result: result, success })
 }
 
+

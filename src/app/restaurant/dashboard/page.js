@@ -6,7 +6,6 @@ import React, { useState } from 'react';
 
 const Dashboard = () => {
     const [addItem, setAddItem] = useState(false);
-
     return (
         <>
             <RestaurantHeader />
@@ -14,8 +13,8 @@ const Dashboard = () => {
                 <button
                     onClick={() => setAddItem(true)}
                     className={`px-4 py-2 rounded-lg font-semibold transition-all ${addItem
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white text-blue-600 border border-blue-600 hover:bg-blue-100'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-blue-600 border border-blue-600 hover:bg-blue-100'
                         }`}
                 >
                     Add Food
@@ -24,16 +23,15 @@ const Dashboard = () => {
                 <button
                     onClick={() => setAddItem(false)}
                     className={`px-4 py-2 rounded-lg font-semibold transition-all ${!addItem
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white text-blue-600 border border-blue-600 hover:bg-blue-100'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-blue-600 border border-blue-600 hover:bg-blue-100'
                         }`}
                 >
                     Dashboard
                 </button>
             </div>
-
             <div className="px-6 py-4">
-                {addItem ? <AddFooditem setAddItem={setAddItem}/> : <FooditemList />}
+                {addItem ? <AddFooditem setAddItem={setAddItem} /> : <FooditemList />}
             </div>
         </>
     );
