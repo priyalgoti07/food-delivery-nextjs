@@ -8,12 +8,22 @@ export async function GET(request, content) {
     console.log("id", id)
     let success = false;
     await mongoose.connect(connectionStr, { useNewUrlParser: true })
-    const result = await foodsSchema.find({ resto_id: id});
-    console.log("result",result)
+    const result = await foodsSchema.find({ resto_id: id });
+    console.log("result", result)
     if (result) {
         success = true;
-    } else {
-
     }
     return NextResponse.json({ result, success })
 }
+
+export async function DELETE(request, content) {
+    const id = content.params.id;
+    let sucess = false;
+    await mongoose.connect(connectionStr, { useNewUrlParser: true });
+    const result = await foodsSchema.deleteOne({ _id: id })
+    if (result.deletedCount > 0) {
+        sucess = true;
+    }
+    return NextResponse.json({ result: result, sucess })
+}
+
