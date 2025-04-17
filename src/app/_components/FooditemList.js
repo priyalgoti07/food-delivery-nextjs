@@ -59,7 +59,7 @@ const FooditemList = () => {
                         fooditems.length > 0 && fooditems?.map((item, key) => {
                             return (
                                 <tr className="divide-x divide-gray-300" key={key}>
-                                    <td className="p-2 border">{key}</td>
+                                    <td className="p-2 border">{key +1}</td>
                                     <td className="p-2 border">{item.name}</td>
                                     <td className="p-2 border">{item.price}</td>
                                     <td className="p-2 border">{item.description}</td>

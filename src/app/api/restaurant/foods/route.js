@@ -12,7 +12,6 @@ export async function POST(request) {
     }
     const food = await foodsSchema(payload)
     const result = await food.save()
-    console.log("i am post", result)
     if (result) {
         success = true
     }

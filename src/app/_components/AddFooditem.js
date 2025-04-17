@@ -2,7 +2,6 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 
 const AddFooditem = ({ setAddItem, editId }) => {
-    console.log("se", setAddItem)
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
     const [path, setPath] = useState('');
@@ -11,7 +10,6 @@ const AddFooditem = ({ setAddItem, editId }) => {
     const route = useRouter()
     useEffect(() => {
         const handleUpdateRecord = async () => {
-            console.log("i am data")
             try {
                 let response = await fetch(`http://localhost:3000/api/restaurant/foods/edit/${editId}`)
                 response = await response?.json()
@@ -21,7 +19,6 @@ const AddFooditem = ({ setAddItem, editId }) => {
                     setPath(response?.result?.img_path);
                     setDescription(response?.result?.description);
                 }
-                console.log("response", response)
             } catch (error) {
                 console.error("Error", error)
             }
@@ -32,7 +29,6 @@ const AddFooditem = ({ setAddItem, editId }) => {
 
 
     const handladdFood = async () => {
-        console.log(name, path, price, description)
         let hasError = false;
         setError(false);
         if (!name || !price || !path || !description) {
@@ -56,7 +52,6 @@ const AddFooditem = ({ setAddItem, editId }) => {
             }
         } else {
             const restaurantUser = JSON.parse(localStorage?.getItem("restaurantUser"))
-            console.log("restaurantId", restaurantUser._id)
             let response = await fetch('http://localhost:3000/api/restaurant/foods', {
                 method: "POST",
                 body: JSON.stringify({

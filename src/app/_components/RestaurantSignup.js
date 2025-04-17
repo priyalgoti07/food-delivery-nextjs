@@ -44,7 +44,6 @@ const RestaurantSignUp = () => {
       if (response.success) {
         const { result } = response
         delete result.password
-        console.log(result)
         localStorage.setItem("restaurantUser", JSON.stringify(result))
         router.push("/restaurant/dashboard")
         alert("User add Successfully")
@@ -52,7 +51,7 @@ const RestaurantSignUp = () => {
         alert("Signup failed. Try again.");
       }
     } catch (error) {
-      console.log("Error during signup", error)
+      console.error("Error during signup", error)
     }
 
   }

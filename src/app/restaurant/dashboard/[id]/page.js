@@ -8,7 +8,6 @@ import React from 'react'
 
 const EditForm = () => {
     const params = useParams();
-    console.log("props------------>", params.id)
     return (
         <div>
             <RestaurantHeader />

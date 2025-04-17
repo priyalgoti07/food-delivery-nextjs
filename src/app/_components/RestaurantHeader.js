@@ -13,7 +13,6 @@ const RestaurantHeader = () => {
 
     useEffect(() => {
         let storeData = localStorage.getItem("restaurantUser")
-        console.log(storeData)
         if (!storeData && pathName === "/restaurant/dashboard") {
             router.push("/restaurant")
         } else if (storeData && pathName === "/restaurant") {
@@ -21,7 +20,6 @@ const RestaurantHeader = () => {
         } else {
             setDetails(JSON.parse(storeData))
         }
-        console.log(details)
     }, [])
     const handleLogout = () => {
         localStorage.removeItem("restaurantUser")

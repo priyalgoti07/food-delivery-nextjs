@@ -6,7 +6,6 @@ import { NextResponse } from "next/server";
 export async function GET(params) {
     await mongoose.connect(connectionStr, { useNewUrlParser: true })
     const data = await restaurantSchema.find()
-    console.log(data)
     return NextResponse.json({ result: data })
 }
 
@@ -21,7 +20,6 @@ export async function POST(request, content) {
             success = true;
         }
     } else {
-        console.log(payload)
         let restaurant = await restaurantSchema(payload);
         result = await restaurant.save()
         success = true;

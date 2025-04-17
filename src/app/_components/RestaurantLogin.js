@@ -66,7 +66,6 @@ const RestaurantLogin = () => {
             if (data.success) {
                 const { result } = data;
                 delete result.password;
-                console.log(result)
                 localStorage.setItem("restaurantUser", JSON.stringify(result))
                 router.push("/restaurant/dashboard")
                 alert('Login successful');
