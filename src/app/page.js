@@ -1,4 +1,3 @@
-import Image from "next/image";
 import CustomersHeader from "./_components/CustomersHeader";
 import RestaurantFooter from "./_components/RestaurantFooter";
 
