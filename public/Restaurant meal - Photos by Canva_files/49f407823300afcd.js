@@ -1,0 +1,10 @@
+(self["webpackChunk_canva_web"] = self["webpackChunk_canva_web"] || []).push([[70644],{
+
+/***/ 437917:
+function(_, __, __webpack_require__) {__webpack_require__.n_x = __webpack_require__.n;const __web_req__ = __webpack_require__;__web_req__(813110);self._5880d4398c473aa67256e87589eaef11 = self._5880d4398c473aa67256e87589eaef11 || {};(function(__c) {var p8b,r8b,q8b,o8b;p8b=function(a,b){return o8b.toArray(Array.from(b,(c,d)=>{if(c instanceof Element){const f=p8b(a,c.childNodes),g=a.Eoa.get(c.tagName.toUpperCase());if(g)try{return g(c,f,d)}catch(h){var e;(e=a.onError)===null||e===void 0||e.call(a,h)}return f}if(c instanceof Text)return c.textContent}))};__c.Qy=function(a,b,c){a.Eoa.set(b.toUpperCase(),c);return a};
+r8b=async function(a){const b=Date.now(),c=await a.cache.keys();await Promise.all(c.map(async d=>{const e=await a.cache.match(d);e&&q8b(e,b)&&await a.cache.delete(d)}))};q8b=function(a,b){a=a.headers.get("X-Expire");return!!a&&b>=parseInt(a,10)};o8b=__webpack_require__(875604).Children;__c.Ry=class{render(a){return p8b(this,this.HPe.parseFromString(a,"text/html").body.childNodes)}constructor(a){this.onError=a;this.Eoa=new Map;this.HPe=new DOMParser}};__c.s8b=class{static async create(a){try{const b=await a.caches.open("blobs");return new __c.s8b(b,a)}catch(b){}}X1a(a,b,c,d){d=d?Date.now()+d:void 0;const e=new this.window.Headers;c&&e.set("X-Name",encodeURI(c));d&&e.set("X-Expire",d.toString(10));return this.cache.put(`/${encodeURIComponent(a)}`,new this.window.Response(b,{headers:e}))}async getBlob(a){if((a=await this.cache.match(`/${encodeURIComponent(a)}`))&&!q8b(a,Date.now())){var b=a.headers.get("X-Name");b=b?decodeURI(b):void 0;return{blob:await a.blob(),
+name:b}}}async e0c(a){await this.cache.delete(`/${encodeURIComponent(a)}`)}constructor(a,b){this.cache=a;this.window=b;this.window.requestIdleCallback?this.window.requestIdleCallback(()=>r8b(this)):setTimeout(()=>r8b(this),6E4)}};
+}).call(self, self._5880d4398c473aa67256e87589eaef11);}
+
+}])
+//# sourceMappingURL=sourcemaps/49f407823300afcd.js.map

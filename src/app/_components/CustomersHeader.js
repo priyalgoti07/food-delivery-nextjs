@@ -17,6 +17,7 @@ const CustomersHeader = () => {
                 {/* Navigation Links */}
                 <nav className='flex justify-around'>
                     <ul className="flex space-x-6">
+                        <li><Link href="/">Home</Link></li>
                         <li><Link href="/">Login</Link></li>
                         <li>
                             <Link href="/">
@@ -31,11 +32,6 @@ const CustomersHeader = () => {
                         <li>
                             <Link href="/">
                                 Add Restaurant
-                            </Link>
-                        </li>
-                        <li>
-                            <Link href="/">
-                                Login
                             </Link>
                         </li>
                     </ul>
