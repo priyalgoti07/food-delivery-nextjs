@@ -1,7 +1,34 @@
+'use client'
+import { useEffect, useState } from "react";
 import CustomersHeader from "./_components/CustomersHeader";
 import RestaurantFooter from "./_components/RestaurantFooter";
 
 export default function Home() {
+
+  const [location, setLoaction] = useState([]);
+  const [selectLoaction, setSelectLoaction] = useState([]);
+  const [showLoaction, setShowLoaction] = useState(false);
+  useEffect(() => {
+    loadLoction()
+  }, [])
+
+  const loadLoction = async () => {
+    try {
+      let response = await fetch("http://localhost:3000/api/customer/locations")
+      response = await response.json();
+      if (response.success) {
+        setLoaction(response.result)
+      } else {
+        alert("Somthing wont to wrong")
+      }
+    } catch (error) {
+      console.error("Error", error)
+    }
+  }
+  console.log("location", location)
+  const handleListitem = (item) => {
+    setSelectLoaction(item);
+  }
   return (
     <>
       <CustomersHeader />
@@ -12,8 +39,22 @@ export default function Home() {
             <input
               type="text"
               placeholder="Select Place"
-              className="p-2  text-black border-none focus:outline-none focus:ring-0 pl-3.5"
+              className="p-2  text-black border-none focus:outline-none focus:ring-0"
+              value={selectLoaction}
+              onClick={()=> setShowLoaction(true)}
             />
+            {/* Dropdown */}
+            <ul className="absolute z-10 mt-1 w-[12%] bg-white border border-gray-200 rounded-md shadow-md max-h-60 overflow-y-auto">
+              {showLoaction && location.map((item, index) => (
+                <li
+                  key={index}
+                  className="p-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={(event) => handleListitem(item)} // Replace with actual logic
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
             <input
               type="text"
               placeholder="Enter food or restaurant"
