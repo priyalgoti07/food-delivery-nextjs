@@ -7,18 +7,37 @@ export default function Home() {
 
   const [location, setLoaction] = useState([]);
   const [selectLoaction, setSelectLoaction] = useState([]);
+  const [restaurants, setRestaurants] = useState([]);
   const [showLoaction, setShowLoaction] = useState(false);
   useEffect(() => {
-    loadLoction()
+    loadLoction();
+    loadRestaurants();
   }, [])
 
+  const loadRestaurants = async () => {
+    console.log("loadRestaurant")
+    try {
+      let repRestaurant = await fetch('http://localhost:3000/api/customer');
+      console.log("repRestaurant", repRestaurant)
+      if (!repRestaurant.ok) {
+        throw new Error(`HTTP error! status:${repRestaurant?.status}`)
+      }
+      let data = await repRestaurant.json();
+      if (data?.success) {
+        setRestaurants(data?.result)
+      }
+    } catch (error) {
+      console.error("Somthing went wrong")
+    }
+  }
+  console.log("rest--------->I", restaurants)
   const loadLoction = async () => {
     try {
       let response = await fetch("http://localhost:3000/api/customer/locations");
 
       // response = await response.json();
       if (!response.ok) {
-        throw new Error(`HTTP error! status:${res.status}`)
+        throw new Error(`HTTP error! status:${response?.status}`)
       }
 
       const text = await response.text();
@@ -32,7 +51,6 @@ export default function Home() {
       console.error("Error", error)
     }
   }
-  console.log("location", location)
   const handleListitem = (item) => {
     setSelectLoaction(item);
     setShowLoaction(false);
@@ -72,6 +90,29 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 mb-6">
+        {restaurants?.map((item) => (
+          <div
+            key={item._id}
+            className="bg-orange-400 shadow-md rounded-xl p-4 border border-gray-200 hover:shadow-lg transition"
+          >
+            {/* Line 1: Name and Contact */}
+            <div className="flex justify-between mb-2">
+              <h2 className="text-xl font-semibold">{item.name}</h2>
+              <p className="text-gray-700 font-medium">📞 {item.contact}</p>
+            </div>
+
+            {/* Line 2: Address, City, Email */}
+            <div className="text-gray-700 flex flex-wrap gap-x-6">
+              <p><span className="font-medium">Address:</span> {item.address}</p>
+              <p><span className="font-medium">City:</span> {item.city}</p>
+              <p><span className="font-medium">Email:</span> {item.email}</p>
+            </div>
+
+          </div>
+        ))}
+      </div>
+
       <RestaurantFooter />
 
     </>
