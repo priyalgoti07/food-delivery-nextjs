@@ -14,12 +14,19 @@ export default function Home() {
 
   const loadLoction = async () => {
     try {
-      let response = await fetch("http://localhost:3000/api/customer/locations")
-      response = await response.json();
-      if (response.success) {
-        setLoaction(response.result)
+      let response = await fetch("http://localhost:3000/api/customer/locations");
+
+      // response = await response.json();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status:${res.status}`)
+      }
+
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : {};
+      if (data.success) {
+        setLoaction(data.result)
       } else {
-        alert("Somthing wont to wrong")
+        alert("Somthing went wrong")
       }
     } catch (error) {
       console.error("Error", error)
@@ -28,6 +35,7 @@ export default function Home() {
   console.log("location", location)
   const handleListitem = (item) => {
     setSelectLoaction(item);
+    setShowLoaction(false);
   }
   return (
     <>
@@ -41,7 +49,8 @@ export default function Home() {
               placeholder="Select Place"
               className="p-2  text-black border-none focus:outline-none focus:ring-0"
               value={selectLoaction}
-              onClick={()=> setShowLoaction(true)}
+              onClick={() => setShowLoaction(true)}
+              readOnly
             />
             {/* Dropdown */}
             <ul className="absolute z-10 mt-1 w-[12%] bg-white border border-gray-200 rounded-md shadow-md max-h-60 overflow-y-auto">
