@@ -14,10 +14,17 @@ export default function Home() {
     loadRestaurants();
   }, [])
 
-  const loadRestaurants = async () => {
-    console.log("loadRestaurant")
+  const loadRestaurants = async (parmas = {}) => {
     try {
-      let repRestaurant = await fetch('http://localhost:3000/api/customer');
+
+      let url = 'http://localhost:3000/api/customer';
+      if (parmas?.location) {
+        url = `${url}?location=${parmas.location}`
+      } else if (parmas?.restaurant) {
+        url = `${url}?restaurant=${parmas.restaurant}`
+      }
+      let repRestaurant = await fetch(url);
+      console.log("rep", repRestaurant)
       console.log("repRestaurant", repRestaurant)
       if (!repRestaurant.ok) {
         throw new Error(`HTTP error! status:${repRestaurant?.status}`)
@@ -52,8 +59,10 @@ export default function Home() {
     }
   }
   const handleListitem = (item) => {
+    console.log("item", item)
     setSelectLoaction(item);
     setShowLoaction(false);
+    loadRestaurants({ location: item })
   }
   return (
     <>
@@ -86,6 +95,7 @@ export default function Home() {
               type="text"
               placeholder="Enter food or restaurant"
               className="p-2 md text-black focus:outline-none focus:ring-0 border-l border-[#ccc] flex-1 pl-3.5"
+              onChange={(event) => loadRestaurants({ restaurant: event.target.value })}
             />
           </div>
         </div>
