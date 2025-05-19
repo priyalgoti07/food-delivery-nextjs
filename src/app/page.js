@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import CustomersHeader from "./_components/CustomersHeader";
 import RestaurantFooter from "./_components/RestaurantFooter";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
 
@@ -9,23 +10,25 @@ export default function Home() {
   const [selectLoaction, setSelectLoaction] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
   const [showLoaction, setShowLoaction] = useState(false);
+  const route = useRouter();
+
   useEffect(() => {
     loadLoction();
     loadRestaurants();
   }, [])
 
   const loadRestaurants = async (parmas = {}) => {
-    try {
 
+    try {
       let url = 'http://localhost:3000/api/customer';
+
       if (parmas?.location) {
         url = `${url}?location=${parmas.location}`
       } else if (parmas?.restaurant) {
         url = `${url}?restaurant=${parmas.restaurant}`
       }
       let repRestaurant = await fetch(url);
-      console.log("rep", repRestaurant)
-      console.log("repRestaurant", repRestaurant)
+
       if (!repRestaurant.ok) {
         throw new Error(`HTTP error! status:${repRestaurant?.status}`)
       }
@@ -36,8 +39,9 @@ export default function Home() {
     } catch (error) {
       console.error("Somthing went wrong")
     }
+
   }
-  console.log("rest--------->I", restaurants)
+
   const loadLoction = async () => {
     try {
       let response = await fetch("http://localhost:3000/api/customer/locations");
@@ -58,17 +62,20 @@ export default function Home() {
       console.error("Error", error)
     }
   }
+
   const handleListitem = (item) => {
-    console.log("item", item)
     setSelectLoaction(item);
     setShowLoaction(false);
     loadRestaurants({ location: item })
   }
+
   return (
     <>
       <CustomersHeader />
-      <div className="bg-[url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR65vKRtcRWEFPwjrJX0fsVWrKT42k58EYdyg&s')] bg-cover bg-center min-h-[300px]">
-        <div className="text-black text-center pt-2">
+      <div className="relative bg-[url('https://media.istockphoto.com/id/856382602/photo/top-view-of-rainbow-vegetables-autumn-harvest.jpg?s=2048x2048&w=is&k=20&c=S4YDmcJeaLvsHOczkk1k8WPUPIudjsJB75x3vDlF5J8=')] bg-cover bg-center min-h-[300px]">
+        {/* Black shadow overlay */}
+        <div className="absolute inset-0 bg-black opacity-50"></div>
+        <div className="relative z-10 text-black text-center pt-2">
           <h1 className="text-4xl font-bold mb-4">Food Delivery App</h1>
           <div className=" bg-[#ffff] border-1-[#ccc] rounded-md w-[70%] m-auto text-left p-1.5">
             <input
@@ -100,11 +107,13 @@ export default function Home() {
           </div>
         </div>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 mb-6">
         {restaurants?.map((item) => (
           <div
             key={item._id}
             className="bg-orange-400 shadow-md rounded-xl p-4 border border-gray-200 hover:shadow-lg transition"
+            onClick={() => route.push(`explore/${item.name}`)}
           >
             {/* Line 1: Name and Contact */}
             <div className="flex justify-between mb-2">
