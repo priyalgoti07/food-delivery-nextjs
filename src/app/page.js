@@ -113,7 +113,7 @@ export default function Home() {
           <div
             key={item._id}
             className="bg-orange-400 shadow-md rounded-xl p-4 border border-gray-200 hover:shadow-lg transition"
-            onClick={() => route.push(`explore/${item.name}`)}
+            onClick={() => route.push(`explore/${item.name}?id=${item._id}`)}
           >
             {/* Line 1: Name and Contact */}
             <div className="flex justify-between mb-2">
