@@ -54,20 +54,14 @@ const Page = () => {
             </div>
             <div>
                 <>
-                    {/* Grid of food cards */}
-                    <div className="max-w-6xl mx-auto px-4 py-10 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    {/* Flex layout of food cards */}
+                    <div className="max-w-6xl mx-auto px-4 py-10 flex flex-wrap gap-6 justify-center">
                         {foodDetails?.map((item) => (
                             <div
                                 key={item._id}
-                                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+                                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer w-full sm:w-[48%] lg:w-[30%]"
                                 onClick={() => setSelectedItem(item)}
                             >
-                                {/* <Image
-                                    src={item?.img_path}
-                                    alt={item.name}
-                                    className="w-full h-48 object-cover"
-                                    width={60} height={60}
-                                /> */}
                                 <img
                                     src={item.img_path}
                                     alt={item.name}
@@ -77,17 +71,37 @@ const Page = () => {
                                     <h4 className="text-lg font-semibold text-gray-800 mb-1">{item.name}</h4>
                                     <p className="text-gray-500 text-sm line-clamp-2">{item.description}</p>
                                     <div className="mt-2 text-green-600 font-bold">₹{item.price}</div>
+                                    {/* Add to Cart Button */}
+                                    <button
+                                        className="mt-4 w-full border-1 border-gray-200 text-sm font-bold py-2 px-4 rounded-lg transition-all duration-200"
+                                        style={{
+                                            color: 'rgb(27, 166, 114)',
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = 'rgba(2, 6, 12, 0.15)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = 'transparent';
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            console.log("Add to cart");
+                                        }}
+                                    >
+                                        Add to Cart
+                                    </button>
                                 </div>
                             </div>
                         ))}
                     </div>
 
+
                     {/* Modal Popup */}
                     {selectedItem && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
                             <div className="bg-white rounded-xl p-6 max-w-md w-full relative">
                                 <button
-                                    className="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl"
+                                    className="absolute top-1 right-2 text-gray-500 hover:text-red-500 text-2xl"
                                     onClick={() => setSelectedItem(null)}
                                 >
                                     &times;
@@ -106,6 +120,7 @@ const Page = () => {
                     )}
                 </>
             </div>
+
         </>
     )
 }
