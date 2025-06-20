@@ -28,7 +28,7 @@ const CustomersHeader = () => {
                             <Link href="/">Signup</Link>
                         </li>
                         <li>
-                            <Link href="/">Cart({cartItems?.length})</Link>
+                            <Link href={`${cartItems?.length ? '/cart' : '#'}`}>Cart({cartItems?.length})</Link>
                         </li>
                         <li>
                             <Link href="/">Add Restaurant</Link>
