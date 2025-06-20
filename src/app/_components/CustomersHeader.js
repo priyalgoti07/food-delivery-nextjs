@@ -1,10 +1,11 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import React from 'react'
-import logo from '../../../public/food-logo.png';
-
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+import logo from "../../../public/food-logo.png";
+import { useSelector } from "react-redux";
 
 const CustomersHeader = () => {
+    const cartItems = useSelector((state) => state.cart.items);
     return (
         <header className="w-full py-4 px-6 shadow-md">
             <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -15,31 +16,28 @@ const CustomersHeader = () => {
                 </div>
 
                 {/* Navigation Links */}
-                <nav className='flex justify-around'>
+                <nav className="flex justify-around">
                     <ul className="flex space-x-6">
-                        <li><Link href="/">Home</Link></li>
-                        <li><Link href="/">Login</Link></li>
                         <li>
-                            <Link href="/">
-                                Signup
-                            </Link>
+                            <Link href="/">Home</Link>
                         </li>
                         <li>
-                            <Link href="/">
-                                Cart(0)
-                            </Link>
+                            <Link href="/">Login</Link>
                         </li>
                         <li>
-                            <Link href="/">
-                                Add Restaurant
-                            </Link>
+                            <Link href="/">Signup</Link>
+                        </li>
+                        <li>
+                            <Link href="/">Cart({cartItems?.length})</Link>
+                        </li>
+                        <li>
+                            <Link href="/">Add Restaurant</Link>
                         </li>
                     </ul>
                 </nav>
             </div>
         </header>
+    );
+};
 
-    )
-}
-
-export default CustomersHeader
+export default CustomersHeader;
