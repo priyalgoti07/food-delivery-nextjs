@@ -34,7 +34,7 @@ const UserSignup = () => {
                 method: 'POST',
                 body: JSON.stringify({ name, email, password, city, address, mobile }),
             });
-            
+
             response = await response.json();
             if (response.success) {
                 const { result } = response;
@@ -51,8 +51,9 @@ const UserSignup = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
-            <div className="bg-white shadow-xl rounded-xl w-full max-w-md p-8 space-y-4">
+
+        <div className="flex items-center justify-center bg-gray-50">
+            <div className=" rounded-x w-full max-w-md p-8 space-y-4">
                 <h2 className="text-2xl font-bold text-center text-orange-600 mb-4">User Signup</h2>
 
                 {[

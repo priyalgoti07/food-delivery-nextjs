@@ -7,10 +7,9 @@ export async function POST(request) {
     const payload = await request.json();
     await mongoose.connect(connectionStr);
     let success = false;
-    const user = new userSchema(payload);
-    const result = await user.save();
+    const result = await userSchema.findOne({ email: payload.email, password: payload.password });
     if (result) {
-        success = true
+        success = true;
     }
     return NextResponse.json({ result, success })
 }
