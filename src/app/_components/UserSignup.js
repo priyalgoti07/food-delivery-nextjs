@@ -39,8 +39,8 @@ const UserSignup = () => {
             if (response.success) {
                 const { result } = response;
                 delete result.password;
-                localStorage.setItem('restaurantUser', JSON.stringify(result));
-                router.push('/restaurant/dashboard');
+                localStorage.setItem('user', JSON.stringify(result));
+                router.push('/');
                 alert('User added successfully!');
             } else {
                 alert('Signup failed. Try again.');
