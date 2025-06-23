@@ -40,7 +40,7 @@ const CartPage = () => {
     return (
         <>
             <CustomersHeader />
-            <div className="max-w-5xl mx-auto m-8 bg-white rounded-xl shadow-lg p-6 space-y-6">
+            <div className="max-w-5xl mx-auto mt-40 mb-10 bg-white rounded-xl shadow-lg p-6 space-y-6">
                 <div>
                     <h2 className="text-xl font-semibold text-gray-700 mb-4">Cart Summary</h2>
 

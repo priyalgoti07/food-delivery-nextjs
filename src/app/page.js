@@ -72,12 +72,12 @@ export default function Home() {
   return (
     <>
       <CustomersHeader />
-      <div className="relative bg-[url('https://media.istockphoto.com/id/856382602/photo/top-view-of-rainbow-vegetables-autumn-harvest.jpg?s=2048x2048&w=is&k=20&c=S4YDmcJeaLvsHOczkk1k8WPUPIudjsJB75x3vDlF5J8=')] bg-cover bg-center min-h-[300px]">
+      <div className="relative bg-[url('https://media.istockphoto.com/id/856382602/photo/top-view-of-rainbow-vegetables-autumn-harvest.jpg?s=2048x2048&w=is&k=20&c=S4YDmcJeaLvsHOczkk1k8WPUPIudjsJB75x3vDlF5J8=')] bg-cover bg-center min-h-[400px]">
         {/* Black shadow overlay */}
         <div className="absolute inset-0 bg-black opacity-50"></div>
-        <div className="relative z-10 text-black text-center pt-2" >
+        <div className="relative z-10 text-black text-center pt-26" >
           <h1 className="text-4xl font-bold mb-4">Food Delivery App</h1>
-          <div className=" bg-[#ffff] border-1-[#ccc] rounded-md w-[70%] m-auto text-left p-1.5">
+          <div className=" bg-[#ffff] border-1-[#ccc] rounded-md w-[70%] m-auto text-left p-3.5">
             <input
               type="text"
               placeholder="Select Place"

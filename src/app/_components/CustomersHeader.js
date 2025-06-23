@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 const CustomersHeader = () => {
     const cartItems = useSelector((state) => state.cart.items);
     return (
-        <header className="w-full py-4 px-6 shadow-md">
+        <header className="w-full py-4 px-6 fixed top-0 z-11 shadow-lg bg-white">
             <div className="max-w-7xl mx-auto flex justify-between items-center">
                 {/* Logo */}
                 <div className="flex items-center space-x-2">
