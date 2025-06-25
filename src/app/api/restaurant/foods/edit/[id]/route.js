@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 
 export async function GET(request, content) {
     const id = content.params.id;
-    console.log("_id=============>", id)
     await mongoose.connect(connectionStr, { useNewParse: true });
     const record = { _id: id }
     const result = await foodsSchema.findOne(record)

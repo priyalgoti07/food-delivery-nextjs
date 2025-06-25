@@ -27,6 +27,7 @@ const Page = () => {
             response = await response.json();
             if (response.success) {
                 setRestaurantDetails(response?.details)
+                localStorage.setItem("restaurantDetails", JSON.stringify(response?.details))
                 setFoodDetails(response?.
                     foodItms)
             }
@@ -58,7 +59,6 @@ const Page = () => {
         dispatch(addItemTocart(pandingItem))
         setConfirm(false)
     }
-    console.log("item", cartItems)
 
     return (
         <>
