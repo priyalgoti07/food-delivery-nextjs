@@ -35,7 +35,7 @@ const CustomersHeader = () => {
                         {
                             user ? <>
                                 <li>
-                                    <Link href="/">{user?.name}</Link>
+                                    <Link href="/myprofile">{user?.name}</Link>
                                 </li>
                                 <li>
                                     <button onClick={() => setPopup(true)}>Logout</button>

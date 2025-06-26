@@ -22,7 +22,6 @@ export async function POST(request) {
 
 export async function GET(request) {
     const queryParams = request.nextUrl.searchParams.get('id');
-    console.log("queryParams", queryParams);
     await mongoose.connect(connectionStr);
     let success = false;
     let result = await orderSchema.find({ user_Id: queryParams })
