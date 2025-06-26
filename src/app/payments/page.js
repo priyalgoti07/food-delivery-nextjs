@@ -3,9 +3,12 @@ import React, { useEffect, useState } from 'react';
 import CustomersHeader from '../_components/CustomersHeader';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCart } from '../store/slices/cartSlice';
+import { useRouter } from 'next/navigation';
 
 const PaymentOptions = () => {
     const dispatch = useDispatch();
+    const router = useRouter();
+
     const [isCODOpen, setIsCODOpen] = useState(false);
 
     const toggleCOD = () => setIsCODOpen(!isCODOpen);
@@ -25,6 +28,12 @@ const PaymentOptions = () => {
     const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
     const totalAmount = cartItems.reduce((total, item) => total + item.quantity * item.price, 0);
     console.log("totalAmount", totalAmount);
+
+    useEffect(() => {
+        if (totalAmount === 0) {
+            router.push('/'); // Redirect to home if cart is empty
+        }
+    }, [totalAmount])
     const handleOrder = async () => {
         let user_id = user?._id || JSON.parse(localStorage.getItem('user'))?._id;
         let foodItemIds = cartItems.map(item => item._id).toString();
@@ -51,7 +60,7 @@ const PaymentOptions = () => {
             if (data.success) {
                 alert("Order placed successfully!");
                 dispatch(clearCart([]))
-
+                router.push('/myprofile');
             } else {
                 alert("Failed to place order. Please try again.");
             }
@@ -92,32 +101,42 @@ const PaymentOptions = () => {
 
                 {/* Pay on Delivery (expandable) */}
                 <div
-                    className="bg-white shadow-sm p-4 rounded-md border border-gray-300 cursor-pointer hover:shadow-md transition"
+                    className={`group relative bg-white border border-gray-200 rounded-xl p-4 shadow-sm transition-all duration-300 hover:shadow-md cursor-pointer ${isCODOpen ? 'ring-2 ring-green-500/40' : ''
+                        }`}
                     onClick={toggleCOD}
                 >
-                    <div className="flex justify-between items-center">
+                    <div className="flex items-center justify-between">
                         <div>
-                            <h3 className="text-gray-800 font-semibold">Pay on Delivery</h3>
-                            <p className="text-sm text-gray-500">Pay in cash or pay online</p>
+                            <h3 className="text-base font-semibold text-gray-900 group-hover:text-green-700 transition-colors">
+                                Pay on Delivery
+                            </h3>
+                            <p className="text-sm text-gray-500">Cash or UPI on delivery</p>
                         </div>
-                        <span className="text-xl text-gray-600">{isCODOpen ? '−' : '+'}</span>
+                        <div className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 text-xl transition-transform duration-300 group-hover:scale-110">
+                            {isCODOpen ? '−' : '+'}
+                        </div>
                     </div>
-                    {/* Drawer shown when clicked */}
+
                     {isCODOpen && (
-                        <div className="bg-white shadow-inner p-4 rounded-md border border-green-600 border-t-0 animate-fade-in">
-                            <div className="mb-2">
-                                <h4 className="text-green-700 font-semibold">Pay on Delivery (Cash/UPI)</h4>
-                                <p className="text-sm text-gray-600">Pay cash or ask for QR code</p>
+                        <div className="mt-4 border-t border-dashed border-green-400 pt-4 animate-fade-in">
+                            <div className="mb-3">
+                                <h4 className="text-green-700 font-medium text-sm">Pay on Delivery (Cash or UPI)</h4>
+                                <p className="text-xs text-gray-600 mt-1">Choose to pay with cash or scan QR code on delivery</p>
                             </div>
-                            <button className="bg-green-600 hover:shadow-lg transition w-full py-2 text-white font-bold rounded" disabled={totalAmount === 0} onClick={(e) => {
-                                e.stopPropagation();
-                                handleOrder()
-                            }}>
+                            <button
+                                className="w-full py-2 rounded-lg bg-green-600 text-white font-semibold text-sm hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={totalAmount === 0}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOrder();
+                                }}
+                            >
                                 PAY ₹{totalAmount} WITH CASH
                             </button>
                         </div>
                     )}
                 </div>
+
             </div >
         </>
     );
