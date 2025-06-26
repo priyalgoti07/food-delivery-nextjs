@@ -25,7 +25,6 @@ const CartPage = () => {
     const deliveryFee = 96;
     const gst = 57;
     const total = itemTotal + deliveryFee + gst;
-
     if (cartItems.length === 0) {
         return (
             <>
