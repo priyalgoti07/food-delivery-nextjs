@@ -13,11 +13,11 @@ const CartPage = () => {
     const route = useRouter();
     const cartItems = useSelector((state) => state.cart.items);
     const restoDeatils = JSON.parse(localStorage.getItem("restaurantDetails"))
+    const storedUser = localStorage.getItem('user');
 
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
         if (storedUser) setUser(JSON.parse(storedUser));
     }, []);
 
@@ -25,6 +25,7 @@ const CartPage = () => {
     const deliveryFee = 96;
     const gst = 57;
     const total = itemTotal + deliveryFee + gst;
+
     if (cartItems.length === 0) {
         return (
             <>
@@ -92,7 +93,7 @@ const CartPage = () => {
                                 <div className="flex items-center gap-5 font-semibold ">
                                     <h2 className=" text-gray-800">Choose payment method</h2>
                                 </div>
-                                <button className="bg-green-600 p-2 w-full my-2 text-white font-bold shadow-md hover:shadow-lg transition-shadow">PROCEED TO PAY</button>
+                                <button className="bg-green-600 p-2 w-full my-2 text-white font-bold shadow-md hover:shadow-lg transition-shadow" onClick={() => route.push('/payments')}>PROCEED TO PAY</button>
                             </div>
                         </div>
 
