@@ -1,7 +1,7 @@
 import { connectionStr } from "@/app/lib/db";
 import { restaurantSchema } from "@/app/lib/restaurantsModel";
 import mongoose from "mongoose";
-import { connection, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 export async function GET(request) {
     const queryParams = request.nextUrl.searchParams;
