@@ -34,10 +34,28 @@ const PaymentOptions = () => {
     //     }
     // }, [totalAmount])
     const handleOrder = async () => {
+        //user_id fetch from localStorage or user state
         let user_id = user?._id || JSON.parse(localStorage.getItem('user'))?._id;
+
+
+        // userCity fetch from localStorage or user state
+        let userCity = user?.city || JSON.parse(localStorage.getItem('user'))?.city;
+
+        //userCity wise delivery partner fetch
+        let deliverBoyRespone = await fetch(`http://localhost:3000/api/deliverypartners/${userCity}`);
+        let deliveryData = await deliverBoyRespone.json();
+        let deliveryBoyIDs = deliveryData.result.map(item => item._id);
+        let deliveryBoy_id = deliveryBoyIDs[Math.floor(Math.random() * deliveryBoyIDs.length)]; // Randomly select a delivery partner
+
+        if (!deliveryBoy_id) {
+            alert("No delivery partners available for your city. Please try again later.");
+            return;
+        }
+        // Prepare order foodItemIds and resto_id
         let foodItemIds = cartItems.map(item => item._id).toString();
         let resto_id = cartItems.length > 0 ? cartItems[0].resto_id : '';
-        let deliveryBoy_id = '67ff7d0d34d85efc5939c86a';
+
+        // Prepare order details
         let orderDetails = {
             user_Id: user_id,
             foodItemIds: foodItemIds,

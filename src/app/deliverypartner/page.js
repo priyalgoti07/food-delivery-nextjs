@@ -1,8 +1,8 @@
 'use client';
-import React, { useState } from 'react';
-import CustomersHeader from '../_components/CustomersHeader';
 import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import DeliveryHeader from '../_components/DeliveryHeader';
 
 const DeliveryPartner = () => {
     const router = useRouter();
@@ -81,7 +81,7 @@ const DeliveryPartner = () => {
                 const { result } = data;
                 delete result.password;
                 localStorage.setItem('delivertPartner', JSON.stringify(result));
-                router.push('/');
+                router.push('/deliverydashboard');
                 alert('Login successful');
             } else {
                 alert('failed to login. Please try agin with valid email and password');
@@ -122,7 +122,7 @@ const DeliveryPartner = () => {
                 const { result } = response;
                 delete result.password;
                 localStorage.setItem('delivertPartner', JSON.stringify(result));
-                // router.push('/');
+                router.push('/deliverydashboard');
                 alert('User added successfully!');
             } else {
                 alert('Signup failed. Try again.');
@@ -133,9 +133,15 @@ const DeliveryPartner = () => {
 
     };
 
+    useEffect(() => {
+        const delivery = JSON.parse(localStorage.getItem('delivertPartner'));
+        if (delivery) {
+            router.push('/deliverydashboard');
+        }
+    }, [])
     return (
         <div>
-            <CustomersHeader />
+            <DeliveryHeader />
 
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6">
