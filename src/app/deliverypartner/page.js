@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 import DeliveryHeader from '../_components/DeliveryHeader';
 
 const DeliveryPartner = () => {
@@ -76,7 +76,6 @@ const DeliveryPartner = () => {
             });
 
             const data = await res.json();
-            console.log("data", data)
             if (data.success) {
                 const { result } = data;
                 delete result.password;
@@ -87,7 +86,6 @@ const DeliveryPartner = () => {
                 alert('failed to login. Please try agin with valid email and password');
             }
         } catch (err) {
-            console.log("err", err);
             alert('Something went wrong');
         }
 
