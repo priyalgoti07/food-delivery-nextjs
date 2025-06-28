@@ -1,8 +1,13 @@
 'use client'
 import { useEffect, useState } from "react";
-import CustomersHeader from "./_components/CustomersHeader";
 import RestaurantFooter from "./_components/RestaurantFooter";
+import { SlLocationPin } from "react-icons/sl";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import { AiOutlineSearch } from "react-icons/ai";
+import { RxCrossCircled } from "react-icons/rx";
 import { useRouter } from "next/navigation";
+import HomePageHeader from "./_components/HomePageHeader";
+import Link from "next/link";
 
 export default function Home() {
 
@@ -70,24 +75,52 @@ export default function Home() {
   }
 
   return (
-    <>
-      <CustomersHeader />
-      <div className="relative bg-[url('https://media.istockphoto.com/id/856382602/photo/top-view-of-rainbow-vegetables-autumn-harvest.jpg?s=2048x2048&w=is&k=20&c=S4YDmcJeaLvsHOczkk1k8WPUPIudjsJB75x3vDlF5J8=')] bg-cover bg-center min-h-[400px]">
-        {/* Black shadow overlay */}
-        <div className="absolute inset-0 bg-black opacity-50"></div>
-        <div className="relative z-10 text-black text-center pt-26" >
-          <h1 className="text-4xl font-bold mb-4">Food Delivery App</h1>
-          <div className=" bg-[#ffff] border-1-[#ccc] rounded-md w-[70%] m-auto text-left p-3.5">
-            <input
-              type="text"
-              placeholder="Select Place"
-              className="p-2  text-black border-none focus:outline-none focus:ring-0"
-              value={selectLoaction}
-              onClick={() => setShowLoaction(true)}
-              readOnly
-            />
+    <div onClick={() => setShowLoaction(false)}>
+      <HomePageHeader />
+      <div className="bg-orange-400 relative flex flex-col items-center justify-center pt-16 pb-8" >
+
+        {/* lef side image */}
+        <img className="absolute h-[450px] w-[250px] left-0 top-0" src="https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto/portal/testing/seo-home/Veggies_new.png" alt="left_img"></img>
+
+        {/* Tegline */}
+        <div className="flex items-center justify-between px-4 order-0">
+          <div className="w-[60%] mx-auto text-center text-white text-5xl font-semibold leading-14 mb-4 pl-3">Order food &amp; groceries. Discover best restaurants. Yumly it!</div>
+        </div>
+
+        {/* Search bar */}
+        <div className="flex flex-row gap-2 m-auto p-3.5" onClick={(event) => event.stopPropagation()}>
+          <div className="relative ">
+            <div className=" bg-white border-amber-50 rounded-2xl flex justify-around items-center py-4 pl-4 pr-8 w-[350px] gap-2">
+              <div>
+                <SlLocationPin className="text-orange-500 text-lg" />
+              </div>
+              <input
+                type="text"
+                placeholder="Select Place"
+                className=" text-black border-none focus:outline-none focus:ring-0  flex-1"
+                value={selectLoaction}
+                onClick={() => setShowLoaction(true)}
+                readOnly
+              />
+              {/* Clear icon (×) shown only if a value is selected */}
+              {selectLoaction.length > 0 && (
+                <div
+                  className="cursor-pointer text-gray-500 hover:text-red-500 text-xl font-bold"
+                  onClick={() => setSelectLoaction([])}
+                >
+                  <RxCrossCircled className="w-4 h-4" onClick={() => loadRestaurants()} />
+                </div>
+              )}
+              <div className="cursor-pointer font-bold" onClick={() => setShowLoaction(!showLoaction)}>
+                {showLoaction ?
+                  <IoIosArrowUp className="text-lg font-bold" />
+                  :
+                  <IoIosArrowDown className="text-lg font-bold" />
+                }
+              </div>
+            </div>
             {/* Dropdown */}
-            <ul className="absolute z-10 mt-1 w-[12%] bg-white border border-gray-200 rounded-md shadow-md max-h-60 overflow-y-auto" >
+            <ul className="absolute left-0 right-0 mt-1 bg-white border-gray-200 rounded-md shadow-md max-h-60 overflow-y-auto z-10">
               {showLoaction && location.map((item, index) => (
                 <li
                   key={index}
@@ -98,16 +131,45 @@ export default function Home() {
                 </li>
               ))}
             </ul>
+          </div>
+
+          <div className="bg-white border-amber-50 rounded-2xl py-2 pl-4 pr-8 w-[450px] flex justify-center items-center">
             <input
               type="text"
-              placeholder="Enter food or restaurant"
-              className="p-2 md text-black focus:outline-none focus:ring-0 border-l border-[#ccc] flex-1 pl-3.5"
+              placeholder="Search for restaurants"
+              className="p-2 md text-black focus:outline-none focus:ring-0  border-[#ccc] flex-1"
               onChange={(event) => loadRestaurants({ restaurant: event.target.value })}
             />
+            {<AiOutlineSearch />}
+          </div>
+        </div>
+
+        {/* right side iamge */}
+        <img className="absolute h-[450px] w-[250px] right-0 top-0" src="https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto/portal/testing/seo-home/Sushi_replace.png" alt="right_img"></img>
+      </div >
+
+      {/* card selection */}
+      <div className="flex  items-center justify-center bg-orange-400 pr-2 pb-5">
+        <div className="flex items-center justify-center w-[100%] max-w-[80%] min-h-[320px]">
+          <div className="w-[100%] h-[100%]">
+            <Link href='#'>
+              <img src="https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto/MERCHANDISING_BANNERS/IMAGES/MERCH/2024/7/23/ec86a309-9b06-48e2-9adc-35753f06bc0a_Food3BU.png" alt="Food"></img>
+            </Link>
+          </div>
+          <div className="w-[100%] h-[100%]">
+            <Link href='#'>
+              <img className="sc-bXCLTC gsiCGh" src="https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto/MERCHANDISING_BANNERS/IMAGES/MERCH/2024/7/23/b5c57bbf-df54-4dad-95d1-62e3a7a8424d_IM3BU.png" alt="IM">
+              </img>
+            </Link>
+          </div>
+          <div className="w-[100%] h-[100%]">
+            <Link href='#'>
+              <img className="sc-bXCLTC gsiCGh" src="https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto/MERCHANDISING_BANNERS/IMAGES/MERCH/2024/7/23/b6d9b7ab-91c7-4f72-9bf2-fcd4ceec3537_DO3BU.png" alt="DO"></img>
+            </Link>
           </div>
         </div>
       </div>
-
+      {/* Restaurant List */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 mb-6">
         {restaurants?.map((item) => (
           <div
@@ -115,13 +177,11 @@ export default function Home() {
             className="bg-orange-400 shadow-md rounded-xl p-4 border border-gray-200 hover:shadow-lg transition"
             onClick={() => route.push(`explore/${item.name}?id=${item._id}`)}
           >
-            {/* Line 1: Name and Contact */}
             <div className="flex justify-between mb-2">
               <h2 className="text-xl font-semibold">{item.name}</h2>
               <p className="text-gray-700 font-medium">📞 {item.contact}</p>
             </div>
 
-            {/* Line 2: Address, City, Email */}
             <div className="text-gray-700 flex flex-wrap gap-x-6">
               <p><span className="font-medium">Address:</span> {item.address}</p>
               <p><span className="font-medium">City:</span> {item.city}</p>
@@ -132,8 +192,8 @@ export default function Home() {
         ))}
       </div>
 
-      <RestaurantFooter />
+      {/* <RestaurantFooter /> */}
 
-    </>
+    </div>
   );
 }
