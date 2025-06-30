@@ -7,7 +7,7 @@ const restaurantsModel = new mongoose.Schema({
     city: String,
     address: String,
     contact: String,
-
+    img_path: String,
 })
 
 export const restaurantSchema = mongoose.models.restaurants || mongoose.model("restaurants", restaurantsModel);

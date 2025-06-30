@@ -1,13 +1,13 @@
 'use client'
-import { useEffect, useState } from "react";
-import RestaurantFooter from "./_components/RestaurantFooter";
+import { useEffect, useRef, useState } from "react";
 import { SlLocationPin } from "react-icons/sl";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { AiOutlineSearch } from "react-icons/ai";
 import { RxCrossCircled } from "react-icons/rx";
-import { useRouter } from "next/navigation";
 import HomePageHeader from "./_components/HomePageHeader";
 import Link from "next/link";
+import RestaurantCarousel from "./_components/RestaurantCarousel";
+import RestaurantFooter from "./_components/RestaurantFooter";
 
 export default function Home() {
 
@@ -15,7 +15,8 @@ export default function Home() {
   const [selectLoaction, setSelectLoaction] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
   const [showLoaction, setShowLoaction] = useState(false);
-  const route = useRouter();
+
+  const restaurantSectionRef = useRef(null);
 
   useEffect(() => {
     loadLoction();
@@ -72,10 +73,14 @@ export default function Home() {
     setSelectLoaction(item);
     setShowLoaction(false);
     loadRestaurants({ location: item })
+
+    if (restaurants?.length > 0) {
+      restaurantSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }
 
   return (
-    <div onClick={() => setShowLoaction(false)}>
+    <div onClick={() => setShowLoaction(false)} className="bg-white-100">
       <HomePageHeader />
       <div className="bg-orange-400 relative flex flex-col items-center justify-center pt-16 pb-8" >
 
@@ -108,7 +113,10 @@ export default function Home() {
                   className="cursor-pointer text-gray-500 hover:text-red-500 text-xl font-bold"
                   onClick={() => setSelectLoaction([])}
                 >
-                  <RxCrossCircled className="w-4 h-4" onClick={() => loadRestaurants()} />
+                  <RxCrossCircled className="w-4 h-4" onClick={() => {
+                    loadRestaurants()
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }} />
                 </div>
               )}
               <div className="cursor-pointer font-bold" onClick={() => setShowLoaction(!showLoaction)}>
@@ -170,30 +178,15 @@ export default function Home() {
         </div>
       </div>
       {/* Restaurant List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 mb-6">
-        {restaurants?.map((item) => (
-          <div
-            key={item._id}
-            className="bg-orange-400 shadow-md rounded-xl p-4 border border-gray-200 hover:shadow-lg transition"
-            onClick={() => route.push(`explore/${item.name}?id=${item._id}`)}
-          >
-            <div className="flex justify-between mb-2">
-              <h2 className="text-xl font-semibold">{item.name}</h2>
-              <p className="text-gray-700 font-medium">📞 {item.contact}</p>
-            </div>
-
-            <div className="text-gray-700 flex flex-wrap gap-x-6">
-              <p><span className="font-medium">Address:</span> {item.address}</p>
-              <p><span className="font-medium">City:</span> {item.city}</p>
-              <p><span className="font-medium">Email:</span> {item.email}</p>
-            </div>
-
-          </div>
-        ))}
+      <div
+        ref={restaurantSectionRef}
+        className="w-[80%] mx-auto grid grid-cols-1 gap-4 p-4 mb-6 "
+      >
+        <main className="p-6">
+          <RestaurantCarousel restaurants={restaurants} />
+        </main>
       </div>
-
-      {/* <RestaurantFooter /> */}
-
+      <RestaurantFooter />
     </div>
   );
 }
