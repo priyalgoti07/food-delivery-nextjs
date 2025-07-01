@@ -14,13 +14,17 @@ export default function Home() {
   const [location, setLoaction] = useState([]);
   const [selectLoaction, setSelectLoaction] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
+  const [foodList, setFoodList] = useState([]);
   const [showLoaction, setShowLoaction] = useState(false);
 
+  const foodScrollRef = useRef(null);
+  const restaurantScrollRef = useRef(null);
   const restaurantSectionRef = useRef(null);
 
   useEffect(() => {
     loadLoction();
     loadRestaurants();
+    getFoodsList()
   }, [])
 
   const loadRestaurants = async (parmas = {}) => {
@@ -52,7 +56,6 @@ export default function Home() {
     try {
       let response = await fetch("http://localhost:3000/api/customer/locations");
 
-      // response = await response.json();
       if (!response.ok) {
         throw new Error(`HTTP error! status:${response?.status}`)
       }
@@ -69,6 +72,34 @@ export default function Home() {
     }
   }
 
+  const getFoodsList = async () => {
+
+    try {
+      let url = 'http://localhost:3000/api/restaurant/foods';
+
+      let repRestaurant = await fetch(url);
+
+      if (!repRestaurant.ok) {
+        throw new Error(`HTTP error! status:${repRestaurant?.status}`)
+      }
+      let data = await repRestaurant.json();
+      if (data?.success) {
+        setFoodList(
+          data?.foodItems.filter(
+            (item, index, self) =>
+              index ===
+              self.findIndex(
+                (t) => t.name.toLowerCase() === item.name.toLowerCase()
+              )
+          )
+        );
+
+      }
+    } catch (error) {
+      console.error("Somthing went wrong")
+    }
+  }
+
   const handleListitem = (item) => {
     setSelectLoaction(item);
     setShowLoaction(false);
@@ -82,6 +113,7 @@ export default function Home() {
   return (
     <div onClick={() => setShowLoaction(false)} className="bg-white-100">
       <HomePageHeader />
+      {/* Hero Section */}
       <div className="bg-orange-400 relative flex flex-col items-center justify-center pt-16 pb-8" >
 
         {/* lef side image */}
@@ -157,7 +189,7 @@ export default function Home() {
       </div >
 
       {/* card selection */}
-      <div className="flex  items-center justify-center bg-orange-400 pr-2 pb-5">
+      <div className="flex items-center justify-center bg-orange-400 pr-2 pb-5">
         <div className="flex items-center justify-center w-[100%] max-w-[80%] min-h-[320px]">
           <div className="w-[100%] h-[100%]">
             <Link href='#'>
@@ -177,15 +209,28 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Food List */}
+      <div
+        ref={restaurantSectionRef}
+        className="w-[80%] mx-auto grid grid-cols-1 gap-4 p-4 mb-6"
+      >
+        <main className="p-6">
+          <RestaurantCarousel foodList={foodList} ref={foodScrollRef} />
+        </main>
+      </div>
+
       {/* Restaurant List */}
       <div
         ref={restaurantSectionRef}
-        className="w-[80%] mx-auto grid grid-cols-1 gap-4 p-4 mb-6 "
+        className="w-[80%] mx-auto grid grid-cols-1 gap-4 p-4 mb-6"
       >
         <main className="p-6">
-          <RestaurantCarousel restaurants={restaurants} />
+          <RestaurantCarousel restaurants={restaurants} ref={restaurantScrollRef} />
         </main>
       </div>
+
+      {/* Footer */}
       <RestaurantFooter />
     </div>
   );
