@@ -19,10 +19,10 @@ const RestaurantCarousel = ({ restaurants, foodList, ref }) => {
     return (
         <div className="relative w-full">
             {/* Heading */}
-            <div className={`flex ${restaurants?.length > 0 ? "justify-between" : "justify-end"}`}>
+            <div className={`flex mb-4 ${restaurants?.length > 0 ? "justify-between" : "justify-end"}`}>
                 {
                     restaurants?.length > 0 &&
-                    <h2 className="text-2xl font-bold mb-4 ml-4">
+                    <h2 className="text-2xl font-bold m1-4">
                         Discover best restaurants
                     </h2>
                 }
@@ -46,7 +46,7 @@ const RestaurantCarousel = ({ restaurants, foodList, ref }) => {
             {/* Cards container */}
             <div
                 ref={ref}
-                className="flex gap-4 scroll-smooth px-4 py-2 hide-scrollbar overflow-x-hidden overflow-y-auto scrollbar-hide"
+                className={`flex ${restaurants?.length > 0 ? "gap-4" : "gap-12"}  overflow-x-auto overflow-y-hidden scroll-smooth flex gap-4 px-4 py-2 no-scrollbar`}
             >
                 {foodList ?
                     <FoodItems foodList={foodList} />

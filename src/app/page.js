@@ -213,7 +213,7 @@ export default function Home() {
       {/* Food List */}
       <div
         ref={restaurantSectionRef}
-        className="w-[80%] mx-auto grid grid-cols-1 gap-4 p-4 mb-6"
+        className="w-[80%] mx-auto grid grid-cols-1 gap-4 p-4 m-6"
       >
         <main className="p-6">
           <RestaurantCarousel foodList={foodList} ref={foodScrollRef} />
@@ -223,7 +223,7 @@ export default function Home() {
       {/* Restaurant List */}
       <div
         ref={restaurantSectionRef}
-        className="w-[80%] mx-auto grid grid-cols-1 gap-4 p-4 mb-6"
+        className="w-[80%] mx-auto grid grid-cols-1 gap-4 p-4 m-6"
       >
         <main className="p-6">
           <RestaurantCarousel restaurants={restaurants} ref={restaurantScrollRef} />

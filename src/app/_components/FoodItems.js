@@ -7,10 +7,11 @@ const FoodItems = ({ foodList }) => {
 
     return (
         <>
-        {/* first row */}
+            {/* first row */}
             {row1.map((item, index) => (
                 <div key={index} className="flex flex-col items-center w-[144px]">
-                    <button className="w-[144px] h-[144px] flex items-center justify-center">
+
+                    <button onClick={() => console.log(`Clicked on ${item.name}`)} className="w-[144px] h-[144px] flex items-center justify-center" >
                         <img
                             src={item.img_path}
                             alt={item.name}
@@ -21,13 +22,15 @@ const FoodItems = ({ foodList }) => {
                     {/* second row */}
                     {row2[index] && (
                         <>
-                            <div className="mt-4 w-[144px] h-[144px] flex items-center justify-center">
+                            <button onClick={() => console.log(`Clicked on ${item.name}`)} className="mt-4 w-[144px] h-[144px] flex items-center justify-center">
                                 <img
                                     src={row2[index].img_path}
                                     alt={row2[index].name}
                                     className="pointer-events-none select-none w-full h-full object-cover rounded-full"
+                                    onClick={() => console.log(`Clicked on ${item.name}`)}
+
                                 />
-                            </div>
+                            </button>
                             <p className="text-center mt-2 font-medium">
                                 {row2[index].name}
                             </p>
