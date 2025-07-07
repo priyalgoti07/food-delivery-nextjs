@@ -1,8 +1,8 @@
 'use client';
+import React, { useState } from 'react';
 import AddFooditem from '@/app/_components/AddFooditem';
 import FooditemList from '@/app/_components/FooditemList';
 import RestaurantHeader from '@/app/_components/RestaurantHeader';
-import React, { useState } from 'react';
 
 const Dashboard = () => {
     const [addItem, setAddItem] = useState(false);
@@ -31,6 +31,7 @@ const Dashboard = () => {
                 </button>
             </div>
             <div className="px-6 py-4">
+                {/* {!addItem ? <AddFooditem setAddItem={setAddItem} /> : <FooditemList />} */}
                 {addItem ? <AddFooditem setAddItem={setAddItem} /> : <FooditemList />}
             </div>
         </>

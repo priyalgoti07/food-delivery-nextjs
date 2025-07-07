@@ -1,15 +1,18 @@
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
+// import ImageUpload from './uppy/ImageUpload';
 
 const AddFooditem = ({ setAddItem, editId }) => {
     const [name, setName] = useState('');
-    const [price, setPrice] = useState('');
     const [path, setPath] = useState('');
-    const [description, setDescription] = useState('');
+    const [price, setPrice] = useState('');
     const [error, setError] = useState(false);
-    const route = useRouter()
+    const [description, setDescription] = useState('');
+    const route = useRouter();
+
     useEffect(() => {
         const handleUpdateRecord = async () => {
+
             try {
                 let response = await fetch(`http://localhost:3000/api/restaurant/foods/edit/${editId}`)
                 response = await response?.json()
@@ -22,11 +25,10 @@ const AddFooditem = ({ setAddItem, editId }) => {
             } catch (error) {
                 console.error("Error", error)
             }
+
         }
         if (editId) handleUpdateRecord()
     }, [])
-
-
 
     const handladdFood = async () => {
         let hasError = false;
@@ -73,6 +75,7 @@ const AddFooditem = ({ setAddItem, editId }) => {
 
 
     }
+
     return (
         <div className="flex flex-col items-center justify-center min-h-1/4bg-gray-100">
             <div className="bg-white p-6 rounded-lg shadow-lg w-80">
@@ -103,6 +106,7 @@ const AddFooditem = ({ setAddItem, editId }) => {
                     onChange={(e) => setPath(e.target.value)}
                 />
                 {error && !path && <p className='text-red-600 text-[12px] mb-2'>enter imag path</p>}
+                {/* <ImageUpload /> */}
                 <input
                     type="text"
                     name="description"

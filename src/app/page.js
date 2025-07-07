@@ -85,7 +85,7 @@ export default function Home() {
       let data = await repRestaurant.json();
       if (data?.success) {
         setFoodList(
-          data?.foodItems.filter(
+          data?.result?.filter(
             (item, index, self) =>
               index ===
               self.findIndex(

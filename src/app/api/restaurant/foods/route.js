@@ -11,15 +11,15 @@ export async function GET(request, content) {
 
     await mongoose.connect(connectionStr);
     const filter = name ? { name: { $regex: new RegExp(name, 'i') } } : {};
-    let foodItems = await foodsSchema.find(filter);
+    let result = await foodsSchema.find(filter);
 
-    if (foodItems.length === 0) {
-        return NextResponse.json({ foodItems: "No food items found", success: false });
+    if (result.length === 0) {
+        return NextResponse.json({ result: "No food items found", success: false });
     }
     // Step 2: Extract unique resto_ids from food items
     if (name) {
         const restoIds = [
-            ...new Set(foodItems.map((item) => item.resto_id.toString())),
+            ...new Set(result.map((item) => item.resto_id.toString())),
         ];
 
         // Step 3: Fetch restaurants for those IDs
@@ -28,7 +28,7 @@ export async function GET(request, content) {
         });
         return NextResponse.json({ restaurants, success: true })
     }
-    return NextResponse.json({ foodItems, success: true })
+    return NextResponse.json({ result, success: true })
 }
 
 export async function POST(request) {
