@@ -22,7 +22,7 @@ const RestaurantCarousel = ({ restaurants, foodList, ref }) => {
             <div className={`flex mb-4 ${restaurants?.length > 0 ? "justify-between" : "justify-end"}`}>
                 {
                     restaurants?.length > 0 &&
-                    <h2 className="text-2xl font-bold m1-4">
+                    <h2 className="text-2xl font-bold m1-4 pl-4">
                         Discover best restaurants
                     </h2>
                 }

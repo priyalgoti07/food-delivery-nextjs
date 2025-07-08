@@ -1,30 +1,31 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { incrementQuantity, decrementQuantity } from '@/app/store/slices/cartSlice';
-import { FaCheckCircle } from 'react-icons/fa';
-
-import CustomersHeader from '../_components/CustomersHeader';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { FaCheckCircle } from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import CustomersHeader from '../_components/CustomersHeader';
+import { incrementQuantity, decrementQuantity } from '@/app/store/slices/cartSlice';
 
 const CartPage = () => {
-    const dispatch = useDispatch();
     const route = useRouter();
+    const dispatch = useDispatch();
+    const [user, setUser] = useState(null);
+    const storedUser = localStorage.getItem('user');
     const cartItems = useSelector((state) => state.cart.items);
     const restoDeatils = JSON.parse(localStorage.getItem("restaurantDetails"))
-    const storedUser = localStorage.getItem('user');
 
-    const [user, setUser] = useState(null);
 
     useEffect(() => {
         if (storedUser) setUser(JSON.parse(storedUser));
     }, []);
 
+
     const itemTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const deliveryFee = 96;
     const gst = 57;
-    const total = itemTotal + deliveryFee + gst;
+    const total = parseFloat(itemTotal.toFixed(2)) + deliveryFee + gst;
+
     if (cartItems.length === 0) {
         return (
             <>
@@ -115,13 +116,14 @@ const CartPage = () => {
                                         {/* <p className="text-sm text-green-500">Customize &gt;</p> */}
                                     </div>
                                 </div>
-                                <div className="flex items-center">
+                                <div className="flex items-center gap-2.5">
                                     <div className='border border-gray-300 px-2  flex gap-2 items-center'>
                                         <button onClick={() => dispatch(decrementQuantity(item._id))} className='text-gray-300'>−</button>
                                         <span className="text-sm text-green-600 hover:text-green-700">{item.quantity}</span>
                                         <button onClick={() => dispatch(incrementQuantity(item._id))} className=" text-green-600 hover:text-green-700 hover:font-bold">+</button>
                                     </div>
-                                    <div className="w-16 text-right text-gray-700 font-medium">₹{item.quantity * item.price}</div>
+                                    {/* <div className="w-16 text-right text-gray-700 font-medium">₹{item.quantity * item.price}</div> */}
+                                    <div className="w-16 text-right text-gray-700 font-medium">₹{(parseFloat(item.quantity * item.price).toFixed(2))}</div>
                                 </div>
                             </div>
                         ))}
@@ -143,7 +145,7 @@ const CartPage = () => {
                     <div className="bg-white border border-gray-200 p-4 -lg text-gray-700 space-y-2 text-sm">
                         <div className="flex justify-between">
                             <span>Item Total</span>
-                            <span>₹{itemTotal}</span>
+                            <span>₹{parseFloat(itemTotal.toFixed(2))}</span>
                         </div>
                         <div className="flex justify-between">
                             <span>Delivery Fee | 14.1 kms</span>
