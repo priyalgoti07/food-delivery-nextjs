@@ -9,8 +9,8 @@ const DeliveryHeader = () => {
     const [popup, setPopup] = useState(false);
 
     const handleLogout = () => {
-        localStorage.removeItem("user")
-        router.push("/user-auth")
+        localStorage.removeItem("delivertPartner")
+        router.push("/deliverypartner")
         setPopup(false)
     }
     return (
