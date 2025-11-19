@@ -2970,6 +2970,11 @@ next@15.2.4:
     "@next/swc-win32-x64-msvc" "15.2.4"
     sharp "^0.33.5"
 
+nodemailer@^7.0.10:
+  version "7.0.10"
+  resolved "https://registry.npmjs.org/nodemailer/-/nodemailer-7.0.10.tgz"
+  integrity sha512-Us/Se1WtT0ylXgNFfyFSx4LElllVLJXQjWi2Xz17xWw7amDKO2MLtFnVp1WACy7GkVGs+oBlRopVNUzlrGSw1w==
+
 nodemon@^3.1.9:
   version "3.1.9"
   resolved "https://registry.npmjs.org/nodemon/-/nodemon-3.1.9.tgz"
