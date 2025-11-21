@@ -1,5 +1,6 @@
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import { request } from '../lib/request';
 
 const RestaurantLogin = () => {
     const router = useRouter();
@@ -56,13 +57,10 @@ const RestaurantLogin = () => {
         if (!validateBeforeSubmit()) return;
 
         try {
-            const res = await fetch('http://localhost:3000/api/restaurant', {
-                method: 'POST',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...form, login: true }),
+            const data = await request.post('/api/restaurant', {
+                ...form,
+                login: true,
             });
-
-            const data = await res.json();
             if (data.success) {
                 const { result } = data;
                 delete result.password;

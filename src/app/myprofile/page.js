@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import CustomersHeader from '../_components/CustomersHeader';
 import RestaurantFooter from '../_components/RestaurantFooter';
+import { request } from '../lib/request';
 
 const Profile = () => {
     const storedUser = typeof window !== 'undefined' && localStorage.getItem('user');
@@ -13,16 +14,13 @@ const Profile = () => {
     const getMyOrders = async () => {
         if (!user?._id) return;
 
-        const response = await fetch(`http://localhost:3000/api/order?id=${user._id}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        const data = await response.json();
-        if (data.success) {
-            setMyOrders(data.result);
+        try {
+            const data = await request.get(`/api/order?id=${user._id}`);
+            if (data.success) {
+                setMyOrders(data.result);
+            }
+        } catch (error) {
+            console.error("Failed to load orders", error);
         }
     };
 

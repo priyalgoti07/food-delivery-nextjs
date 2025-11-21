@@ -1,32 +1,34 @@
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import logo from "../../../public/food-logo.png";
-import { useRouter } from "next/navigation";
 import { Box, SwipeableDrawer } from "@mui/material";
+import { request } from "../lib/request";
+
+const signupInitialState = { name: "", email: "", phone: "" };
+const signupInitialErrors = { name: "", email: "", phone: "" };
 
 const HomePageHeader = () => {
-    const router = useRouter();
     const [popup, setPopup] = useState(false);
-    const userStorage = JSON.parse(localStorage.getItem('user'));
-    const [user] = useState(userStorage ? userStorage : undefined);
+    const [user, setUser] = useState(() => {
+        if (typeof window !== "undefined") {
+            return JSON.parse(localStorage.getItem("user")) || null;
+        }
+        return null;
+    });
     const [openDrawer, setOpenDrawer] = useState(false);
     const [drawerMode, setDrawerMode] = useState("login");
-    const [mobile, setMobile] = useState('');
-    const [email, setEmail] = useState('');
+    const [loginEmail, setLoginEmail] = useState("");
     const [otp, setOtp] = useState('');
     const [showOtp, setShowOtp] = useState(false);
-    const [error, setError] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [formattedMobile, setFormattedMobile] = useState('');
-
-    useEffect(() => {
-        console.log("user", user)
-    }, [user])
+    const [loginError, setLoginError] = useState("");
+    const [loginLoading, setLoginLoading] = useState(false);
+    const [signupForm, setSignupForm] = useState(signupInitialState);
+    const [signupErrors, setSignupErrors] = useState(signupInitialErrors);
+    const [signupLoading, setSignupLoading] = useState(false);
 
     const handleLogout = () => {
         localStorage.removeItem("user")
-        router.push("/user-auth")
         setPopup(false)
     }
 
@@ -38,62 +40,126 @@ const HomePageHeader = () => {
         )
     }
 
-    const handleMobileChange = (event) => {
-        let val = event.target.value;
+    const resetLoginState = () => {
+        setLoginEmail("");
+        setOtp("");
+        setShowOtp(false);
+        setLoginError("");
+        setLoginLoading(false);
+    };
 
-        // ✅ Allow only digits
-        val = val.replace(/\D/g, "");
+    const resetSignupState = () => {
+        setSignupForm(signupInitialState);
+        setSignupErrors(signupInitialErrors);
+        setSignupLoading(false);
+    };
 
-        // ✅ Limit to 10 digits
-        if (val.length > 10) val = val.slice(0, 10);
+    const handleSignupChange = (field, value) => {
+        setSignupErrors((prev) => ({ ...prev, [field]: "" }));
+        setSignupForm((prev) => {
+            if (field === "phone") {
+                const cleaned = value.replace(/\D/g, "").slice(0, 10);
+                return { ...prev, phone: cleaned };
+            }
+            return { ...prev, [field]: value };
+        });
+    };
 
-        setMobile(val);
+    const validateSignupForm = () => {
+        const errors = { ...signupInitialErrors };
+        let isValid = true;
 
-        // ❌ Don’t show error while typing
-        if (error) setError(false);
+        if (!signupForm.name.trim()) {
+            errors.name = "Name is required";
+            isValid = false;
+        } else if (signupForm.name.trim().length < 2) {
+            errors.name = "Name must be at least 2 characters";
+            isValid = false;
+        }
+
+        if (!signupForm.email.trim()) {
+            errors.email = "Email is required";
+            isValid = false;
+        } else if (!/^\S+@\S+\.\S+$/.test(signupForm.email.trim())) {
+            errors.email = "Please enter a valid email";
+            isValid = false;
+        }
+
+        if (!signupForm.phone) {
+            errors.phone = "Phone is required";
+            isValid = false;
+        } else if (!/^\d{10}$/.test(signupForm.phone)) {
+            errors.phone = "Phone must be exactly 10 digits";
+            isValid = false;
+        }
+
+        setSignupErrors(errors);
+        return isValid;
+    };
+
+    const handleOtpChange = (value) => {
+        const sanitized = value.replace(/\D/g, "").slice(0, 6);
+        if (loginError) setLoginError("");
+        setOtp(sanitized);
+    };
+
+    const handleSignupSubmit = async () => {
+        if (!validateSignupForm()) return;
+        setSignupLoading(true);
+        try {
+            const data = await request.post("/api/user", {
+                name: signupForm.name.trim(),
+                email: signupForm.email.trim(),
+                phone: signupForm.phone,
+            });
+
+            if (data.success) {
+                localStorage.setItem('user', JSON.stringify(data.result));
+                setUser(data.result);
+                alert("Account created successfully!");
+                resetSignupState();
+                setOpenDrawer(false);
+                setDrawerMode("login");
+            } else {
+                alert(data.message || "Failed to create account. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error creating account:", error);
+            alert("Unable to create account. Please try again.");
+        } finally {
+            setSignupLoading(false);
+        }
+    };
+
+    const handleDrawerModeChange = (mode) => {
+        setDrawerMode(mode);
+        if (mode === "login") {
+            resetSignupState();
+        } else {
+            resetLoginState();
+        }
     };
 
     const handleLogin = async () => {
-        if (!email || !email.includes('@')) {
-            setError("Please enter a valid email address");
+        const normalizedEmail = loginEmail.trim();
+        if (!/^\S+@\S+\.\S+$/.test(normalizedEmail)) {
+            setLoginError("Please enter a valid email address");
             return;
         }
 
-        let hasError = false;
-        setError(false);
-        setLoading(true);
-
-        if (!email) {
-            setError(true);
-            hasError = true;
-        }
-
-        if (hasError) {
-            setLoading(false);
-            return;
-        }
+        setLoginError("");
+        setLoginLoading(true);
 
         try {
-            // Send OTP to the email address
-            let res = await fetch('/api/send-email-otp', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: email
-                }),
+            const data = await request.post("/api/send-email-otp", {
+                email: normalizedEmail,
             });
-
-            const data = await res.json();
-            console.log("data", data);
 
             if (data.success) {
                 setShowOtp(true);
-                // For development - show OTP in console/alert
                 if (data.debug_otp) {
                     console.log("OTP for testing:", data.debug_otp);
-                    alert(`OTP sent! For testing: ${data.debug_otp}`); // Remove in production
+                    alert(`OTP sent! For testing: ${data.debug_otp}`);
                 }
             } else {
                 alert(data.message || 'Failed to send OTP. Please try again.');
@@ -102,51 +168,31 @@ const HomePageHeader = () => {
             console.error('Error sending OTP:', error);
             alert('Error sending OTP. Please try again.');
         } finally {
-            setLoading(false);
+            setLoginLoading(false);
         }
     };
 
     // OTP Verification Function
     const verifyOtp = async () => {
         if (!otp || otp.length !== 6) {
-            setError("Please enter a valid 6-digit OTP");
+            setLoginError("Please enter a valid 6-digit OTP");
             return;
         }
 
-        setLoading(true);
+        setLoginLoading(true);
 
         try {
-            let res = await fetch('/api/verify-email-otp', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: email,
-                    otp: otp
-                }),
+            const data = await request.post("/api/verify-email-otp", {
+                email: loginEmail.trim(),
+                otp,
             });
 
-            const data = await res.json();
-            console.log("Verification data", data);
-
             if (data.success) {
-                // Store user data in localStorage/state/context
                 localStorage.setItem('user', JSON.stringify(data.user));
-
-                // Show welcome message with user name
                 alert(`Welcome ${data.user.name}! OTP verified successfully.`);
-
-                // Redirect to dashboard or next page
+                setUser(data.user);
                 setOpenDrawer(false);
-                router.push('/');
-
-                // Reset form
-                setShowOtp(false);
-                setOtp('');
-                setMobile('');
-                setEmail('');
-                // router.push('/dashboard'); // Uncomment if using Next.js router
+                resetLoginState();
             } else {
                 alert(data.message || 'Invalid OTP. Please try again.');
             }
@@ -154,63 +200,16 @@ const HomePageHeader = () => {
             console.error('Error verifying OTP:', error);
             alert('Error verifying OTP. Please try again.');
         } finally {
-            setLoading(false);
+            setLoginLoading(false);
         }
     };
 
-    // const handleVerifyOtp = async () => {
-
-    //     if (!otp) {
-    //         alert('Please enter OTP');
-    //         return;
-    //     }
-
-    //     setLoading(true);
-
-    //     try {
-    //         let res = await fetch('/api/verifyotp', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify({
-    //                 mobile: formattedMobile,
-    //                 otp: otp
-    //             }),
-    //         });
-
-    //         const data = await res.json();
-    //         console.log("Verification data:", data);
-
-    //         if (data.success) {
-    //             const { result } = data;
-    //             if (result) delete result.password;
-    //             localStorage.setItem('user', JSON.stringify(result));
-    //             setOpenDrawer(false);
-    //             router.push('/');
-
-    //             // Reset form
-    //             setShowOtp(false);
-    //             setOtp('');
-    //             setMobile('');
-    //             setEmail('');
-    //         } else {
-    //             alert(data.message || 'Invalid OTP. Please try again.');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error verifying OTP:', error);
-    //         alert('Error verifying OTP. Please try again.');
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
     const handleDrawerClose = () => {
-        setOpenDrawer(false)
-        setMobile('')
-        setDrawerMode('login')
-        setError(false)
-    }
+        setOpenDrawer(false);
+        setDrawerMode('login');
+        resetLoginState();
+        resetSignupState();
+    };
 
     return (
         <>
@@ -218,7 +217,7 @@ const HomePageHeader = () => {
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                     {/* Logo */}
                     <Link href={'/'} className="flex items-center space-x-2 cursor-pointer">
-                        <Image src={logo} alt="Restaurant Logo" width={60} height={60} />
+                        <Image src={logo} alt="Restaurant Logo" width={100} height={100} className="rounded-2xl" />
                     </Link>
 
                     {/* Navigation Links */}
@@ -234,7 +233,15 @@ const HomePageHeader = () => {
                                         </li>
                                     </> :
                                     <li>
-                                        <button onClick={() => setOpenDrawer(true)} className="font-bold leading-5 tracking-wider  py-3 px-6 bg-black rounded-xl">Sign in</button>
+                                        <button
+                                            onClick={() => {
+                                                handleDrawerModeChange("login");
+                                                setOpenDrawer(true);
+                                            }}
+                                            className="font-bold leading-5 tracking-wider  py-3 px-6 bg-black rounded-xl"
+                                        >
+                                            Sign in
+                                        </button>
                                     </li>
                             }
                         </ul>
@@ -284,7 +291,7 @@ const HomePageHeader = () => {
 
                     {/* Close Button */}
                     <button
-                        onClick={() => setOpenDrawer(false)}
+                        onClick={handleDrawerClose}
                         className="absolute top-6 left-8 text-[22px] text-gray-600 hover:text-black"
                     >
                         ✕
@@ -302,12 +309,8 @@ const HomePageHeader = () => {
                                         <>
                                             or{" "}
                                             <button
-                                                onClick={() => {
-                                                    setDrawerMode("signup")
-                                                    setMobile('')
-                                                    setError('')
-                                                }}
-                                                className="text-[#fc8019] font-bold hover:underline text"
+                                                onClick={() => handleDrawerModeChange("signup")}
+                                                className="text-[#fc8019] font-bold hover:underline"
                                             >
                                                 create an account
                                             </button>
@@ -316,11 +319,7 @@ const HomePageHeader = () => {
                                         <>
                                             or{" "}
                                             <button
-                                                onClick={() => {
-                                                    setDrawerMode("login")
-                                                    setMobile('')
-                                                    setError('')
-                                                }}
+                                                onClick={() => handleDrawerModeChange("login")}
                                                 className="text-[#fc8019] font-bold hover:underline"
                                             >
                                                 login to your account
@@ -332,122 +331,156 @@ const HomePageHeader = () => {
                                 <div className="w-10 border-b-[2px] border-black mb-8"></div>
                             </div>
 
-                            <img
+                            <Image
                                 src="https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_147,h_140/Image-login_btpq7r"
                                 alt="Swiggy Login Icon"
-                                className="w-[100px] h-[100px] object-contain mt-[-8px]"
+                                className="object-contain mt-[-8px]"
+                                width={100}
+                                height={100}
                             />
                         </div>
 
-                        {/* Phone Input */}
-                        {/* ✅ Swiggy-style Phone Input */}
-
-                        <div className="relative font-bold">
-                            <input
-                                id="email"
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                className="peer w-full border border-gray-300 pt-8 pb-2 px-3 text-[15px] text-gray-900
-                    focus:outline-none
-                    placeholder-transparent transition-all duration-200"
-                                placeholder="Email"
-                            />
-                            <label
-                                htmlFor="email"
-                                className="absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200 
-                    peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[15px] peer-placeholder-shown:text-gray-400
-                    peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]"
-                            >
-                                Email
-                            </label>
-                        </div>
-
-                        {showOtp &&
-                            <div className="relative">
-                                <input
-                                    value={otp}
-                                    onChange={(event) => setOtp(event.target.value)}
-                                    id="otp"
-                                    required
-                                    className="peer w-full border border-gray-300 pt-8 pb-2 px-3 text-[15px] text-gray-900
-                    focus:outline-none
-                    placeholder-transparent transition-all duration-200 border-t-0"
-                                    placeholder="One time password"
-                                />
-                                <label
-                                    htmlFor="otp"
-                                    className="absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200 
-                    peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[15px] peer-placeholder-shown:text-gray-400
-                    peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]"
-                                >
-                                    Otp
-                                </label>
-                            </div>
-                        }
-
-                        {/* ✅ Show Name + Email for Signup */}
-                        {drawerMode === "signup" && (
+                        {drawerMode === "login" ? (
                             <>
                                 <div className="relative font-bold">
                                     <input
-                                        id="phone"
-                                        type="text"
-                                        value={mobile}
-                                        onChange={handleMobileChange}
-                                        maxLength={10} // ✅ just in case
+                                        id="loginEmail"
+                                        type="email"
+                                        value={loginEmail}
+                                        onChange={(e) => setLoginEmail(e.target.value)}
                                         required
-                                        className={`peer w-full border ${error ? 'border-red-500' : 'border-gray-300'} 
-            pt-8 pb-2 px-3 text-[15px] text-gray-900 focus:outline-none 
-            placeholder-transparent transition-all duration-200 border-t-0`}
-                                        placeholder="Phone number"
+                                        className="peer w-full border border-gray-300 pt-8 pb-2 px-3 text-[15px] text-gray-900 focus:outline-none placeholder-transparent transition-all duration-200"
+                                        placeholder="Email"
                                     />
                                     <label
-                                        htmlFor="phone"
-                                        className={`absolute left-3 top-3 text-[13px] bg-white px-1 transition-all duration-200 
-        ${error
-                                                ? 'text-red-500'
-                                                : 'text-gray-500 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[15px] peer-placeholder-shown:text-gray-400 peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]'
-                                            }`}
+                                        htmlFor="loginEmail"
+                                        className="absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[15px] peer-placeholder-shown:text-gray-400 peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]"
                                     >
-                                        {error ? error : "Phone number"}
+                                        Email
                                     </label>
                                 </div>
-                                <div className="relative">
+                                {loginError && !showOtp && (
+                                    <p className="text-red-500 text-xs mt-1">{loginError}</p>
+                                )}
+
+                                {showOtp && (
+                                    <div className="relative mt-4">
+                                        <input
+                                            value={otp}
+                                            onChange={(event) => handleOtpChange(event.target.value)}
+                                            id="otp"
+                                            inputMode="numeric"
+                                            required
+                                            className="peer w-full border border-gray-300 pt-8 pb-2 px-3 text-[15px] text-gray-900 focus:outline-none placeholder-transparent transition-all duration-200"
+                                            placeholder="One time password"
+                                        />
+                                        <label
+                                            htmlFor="otp"
+                                            className="absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[15px] peer-placeholder-shown:text-gray-400 peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]"
+                                        >
+                                            OTP
+                                        </label>
+                                    </div>
+                                )}
+                                {loginError && showOtp && (
+                                    <p className="text-red-500 text-xs mt-1">{loginError}</p>
+                                )}
+                            </>
+                        ) : (
+                            <>
+                                <div className="relative font-bold">
                                     <input
-                                        id="name"
+                                        id="signupName"
                                         type="text"
+                                        value={signupForm.name}
+                                        onChange={(e) => handleSignupChange("name", e.target.value)}
                                         required
-                                        className="peer w-full border border-gray-300 pt-8 pb-2 px-3 text-[15px] text-gray-900
-                    focus:outline-none
-                    placeholder-transparent transition-all duration-200 border-t-0"
+                                        className={`peer w-full border ${signupErrors.name ? 'border-red-500' : 'border-gray-300'} pt-8 pb-2 px-3 text-[15px] text-gray-900 focus:outline-none placeholder-transparent transition-all duration-200`}
                                         placeholder="Name"
                                     />
                                     <label
-                                        htmlFor="name"
-                                        className="absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200 
-                    peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[15px] peer-placeholder-shown:text-gray-400
-                    peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]"
+                                        htmlFor="signupName"
+                                        className="absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[15px] peer-placeholder-shown:text-gray-400 peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]"
                                     >
                                         Name
                                     </label>
+                                    {signupErrors.name && (
+                                        <p className="text-red-500 text-xs mt-1">{signupErrors.name}</p>
+                                    )}
                                 </div>
-
-                                <p className="text-[13px]  text-blue-700 mt-6 cursor-pointer hover:underline">
-                                    Have a referral code?
-                                </p>
+                                <div className="relative font-bold mt-4">
+                                    <input
+                                        id="signupEmail"
+                                        type="email"
+                                        value={signupForm.email}
+                                        onChange={(e) => handleSignupChange("email", e.target.value)}
+                                        required
+                                        className={`peer w-full border ${signupErrors.email ? 'border-red-500' : 'border-gray-300'} pt-8 pb-2 px-3 text-[15px] text-gray-900 focus:outline-none placeholder-transparent transition-all duration-200`}
+                                        placeholder="Email"
+                                    />
+                                    <label
+                                        htmlFor="signupEmail"
+                                        className="absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[15px] peer-placeholder-shown:text-gray-400 peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]"
+                                    >
+                                        Email
+                                    </label>
+                                    {signupErrors.email && (
+                                        <p className="text-red-500 text-xs mt-1">{signupErrors.email}</p>
+                                    )}
+                                </div>
+                                <div className="relative font-bold mt-4">
+                                    <input
+                                        id="signupPhone"
+                                        type="text"
+                                        inputMode="numeric"
+                                        value={signupForm.phone}
+                                        onChange={(e) => handleSignupChange("phone", e.target.value)}
+                                        required
+                                        className={`peer w-full border ${signupErrors.phone ? 'border-red-500' : 'border-gray-300'} pt-8 pb-2 px-3 text-[15px] text-gray-900 focus:outline-none placeholder-transparent transition-all duration-200`}
+                                        placeholder="Phone number"
+                                    />
+                                    <label
+                                        htmlFor="signupPhone"
+                                        className="absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[15px] peer-placeholder-shown:text-gray-400 peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]"
+                                    >
+                                        Phone number
+                                    </label>
+                                    {signupErrors.phone && (
+                                        <p className="text-red-500 text-xs mt-1">{signupErrors.phone}</p>
+                                    )}
+                                </div>
                             </>
                         )}
 
-                        {/* Button */}
-                        {showOtp ? <button className="w-full bg-[#fc8019] hover:bg-[#e86f0e] mt-6 text-white font-semibold py-3 text-[15px] tracking-wide" onClick={verifyOtp}>
-                            {"VERIFY OTP"}
-                        </button> :
-                            <button className="w-full bg-[#fc8019] hover:bg-[#e86f0e] mt-6 text-white font-semibold py-3 text-[15px] tracking-wide" onClick={handleLogin}>
-                                {drawerMode === "login" ? "LOGIN" : "CONTINUE"}
-                            </button>
-                        }
+                        <div className="mt-6">
+                            {drawerMode === "login" ? (
+                                showOtp ? (
+                                    <button
+                                        className="w-full bg-[#fc8019] hover:bg-[#e86f0e] text-white font-semibold py-3 text-[15px] tracking-wide disabled:opacity-60 disabled:cursor-not-allowed"
+                                        onClick={verifyOtp}
+                                        disabled={loginLoading}
+                                    >
+                                        {loginLoading ? "Verifying..." : "VERIFY OTP"}
+                                    </button>
+                                ) : (
+                                    <button
+                                        className="w-full bg-[#fc8019] hover:bg-[#e86f0e] text-white font-semibold py-3 text-[15px] tracking-wide disabled:opacity-60 disabled:cursor-not-allowed"
+                                        onClick={handleLogin}
+                                        disabled={loginLoading}
+                                    >
+                                        {loginLoading ? "Sending..." : "LOGIN"}
+                                    </button>
+                                )
+                            ) : (
+                                <button
+                                    className="w-full bg-[#fc8019] hover:bg-[#e86f0e] text-white font-semibold py-3 text-[15px] tracking-wide disabled:opacity-60 disabled:cursor-not-allowed"
+                                    onClick={handleSignupSubmit}
+                                    disabled={signupLoading}
+                                >
+                                    {signupLoading ? "Creating..." : "CONTINUE"}
+                                </button>
+                            )}
+                        </div>
 
 
                         {/* Terms & Conditions */}

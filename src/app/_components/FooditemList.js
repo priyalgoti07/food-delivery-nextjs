@@ -1,5 +1,6 @@
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import { request } from '../lib/request';
 
 const FooditemList = () => {
     const [fooditems, setFooditems] = useState([]);
@@ -12,23 +13,21 @@ const FooditemList = () => {
         const userId = JSON.parse(localStorage.getItem("restaurantUser"));
         let resto_id = userId._id
         try {
-            let response = await fetch(`http://localhost:3000/api/restaurant/foods/${resto_id}`)
-            response = await response.json()
-            if (response.result) {
-                setFooditems(response.result)
+            const data = await request.get(`/api/restaurant/foods/${resto_id}`);
+            if (data.result) {
+                setFooditems(data.result);
             } else {
-                alert("food item list not loading")
+                alert("food item list not loading");
             }
         } catch (error) {
-            console.error("Error", error)
+            console.error("Error", error);
         }
     }
 
     const deletItem = async (id) => {
         try {
-            let response = await fetch(`http://localhost:3000/api/restaurant/foods/${id}`, { method: "delete" })
-            response = await response.json();
-            if (response.success) {
+            const data = await request.delete(`/api/restaurant/foods/${id}`);
+            if (data.success) {
                 alert("item is Delete")
                 loadFooditems()
             }

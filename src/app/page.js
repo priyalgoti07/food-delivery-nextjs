@@ -8,6 +8,7 @@ import HomePageHeader from "./_components/HomePageHeader";
 import Link from "next/link";
 import RestaurantCarousel from "./_components/RestaurantCarousel";
 import RestaurantFooter from "./_components/RestaurantFooter";
+import { request } from "./lib/request";
 
 export default function Home() {
 
@@ -27,65 +28,45 @@ export default function Home() {
     getFoodsList()
   }, [])
 
-  const loadRestaurants = async (parmas = {}) => {
+  const buildQueryFromParams = (params) => {
+    const query = new URLSearchParams();
+    if (params?.location) query.append("location", params.location);
+    if (params?.restaurant) query.append("restaurant", params.restaurant);
+    const queryString = query.toString();
+    return queryString ? `/api/customer?${queryString}` : "/api/customer";
+  };
 
+  const loadRestaurants = async (params = {}) => {
     try {
-      let url = 'http://localhost:3000/api/customer';
-
-      if (parmas?.location) {
-        url = `${url}?location=${parmas.location}`
-      } else if (parmas?.restaurant) {
-        url = `${url}?restaurant=${parmas.restaurant}`
-      }
-      let repRestaurant = await fetch(url);
-
-      if (!repRestaurant.ok) {
-        throw new Error(`HTTP error! status:${repRestaurant?.status}`)
-      }
-      let data = await repRestaurant.json();
-      if (data?.success) {
-        setRestaurants(data?.result)
+      const endpoint = buildQueryFromParams(params);
+      const data = await request.get(endpoint);
+      if (data?.success && Array.isArray(data?.result)) {
+        setRestaurants(data.result);
       }
     } catch (error) {
-      console.error("Somthing went wrong")
+      console.error("Failed to load restaurants", error);
     }
-
-  }
+  };
 
   const loadLoction = async () => {
     try {
-      let response = await fetch("http://localhost:3000/api/customer/locations");
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status:${response?.status}`)
-      }
-
-      const text = await response.text();
-      const data = text ? JSON.parse(text) : {};
-      if (data.success) {
-        setLoaction(data.result)
+      const data = await request.get("/api/customer/locations");
+      if (data?.success) {
+        setLoaction(data.result);
       } else {
-        alert("Somthing went wrong")
+        alert("Somthing went wrong");
       }
     } catch (error) {
-      console.error("Error", error)
+      console.error("Error", error);
     }
-  }
+  };
 
   const getFoodsList = async () => {
-
     try {
-      let url = 'http://localhost:3000/api/restaurant/foods';
-
-      let repRestaurant = await fetch(url);
-
-      if (!repRestaurant.ok) {
-        throw new Error(`HTTP error! status:${repRestaurant?.status}`)
-      }
-      let data = await repRestaurant.json();
-      if (data?.success) {
+      const data = await request.get("/api/restaurant/foods");
+      if (data?.success && Array.isArray(data?.result)) {
         setFoodList(
-          data?.result?.filter(
+          data.result.filter(
             (item, index, self) =>
               index ===
               self.findIndex(
@@ -93,12 +74,11 @@ export default function Home() {
               )
           )
         );
-
       }
     } catch (error) {
-      console.error("Somthing went wrong")
+      console.error("Somthing went wrong", error);
     }
-  }
+  };
 
   const handleListitem = (item) => {
     setSelectLoaction(item);
@@ -121,7 +101,7 @@ export default function Home() {
 
         {/* Tegline */}
         <div className="flex items-center justify-between px-4 order-0">
-          <div className="w-[60%] mx-auto text-center text-white text-5xl font-semibold leading-14 mb-4 pl-3">Order food &amp; groceries. Discover best restaurants. Yumly it!</div>
+          <div className="w-[60%] mx-auto text-center text-white text-5xl font-semibold leading-14 mb-4 pl-3">Order food &amp; groceries. Discover best restaurants. Yukky it!</div>
         </div>
 
         {/* Search bar */}

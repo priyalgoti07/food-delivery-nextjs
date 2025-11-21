@@ -1,6 +1,7 @@
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 // import ImageUpload from './uppy/ImageUpload';
+import { request } from '../lib/request';
 
 const AddFooditem = ({ setAddItem, editId }) => {
     const [name, setName] = useState('');
@@ -14,16 +15,15 @@ const AddFooditem = ({ setAddItem, editId }) => {
         const handleUpdateRecord = async () => {
 
             try {
-                let response = await fetch(`http://localhost:3000/api/restaurant/foods/edit/${editId}`)
-                response = await response?.json()
-                if (response.success) {
-                    setName(response?.result?.name);
-                    setPrice(response?.result?.price);
-                    setPath(response?.result?.img_path);
-                    setDescription(response?.result?.description);
+                const data = await request.get(`/api/restaurant/foods/edit/${editId}`);
+                if (data.success) {
+                    setName(data?.result?.name);
+                    setPrice(data?.result?.price);
+                    setPath(data?.result?.img_path);
+                    setDescription(data?.result?.description);
                 }
             } catch (error) {
-                console.error("Error", error)
+                console.error("Error", error);
             }
 
         }
@@ -41,31 +41,31 @@ const AddFooditem = ({ setAddItem, editId }) => {
         if (hasError) return;
         if (editId) {
             try {
-                let response = await fetch(`http://localhost:3000/api/restaurant/foods/edit/${editId}`, { method: "PUT", body: JSON.stringify({ name, price, path, description }) })
-                response = await response.json();
-                if (response.success) {
+                const data = await request.put(`/api/restaurant/foods/edit/${editId}`, {
+                    name,
+                    price,
+                    path,
+                    description,
+                });
+                if (data.success) {
                     alert("food item edit");
-                    route.replace("/restaurant/dashboard")
+                    route.replace("/restaurant/dashboard");
                 } else {
-                    alert("Data is not updated please try again")
+                    alert("Data is not updated please try again");
                 }
             } catch (error) {
-                console.error("Error", error)
+                console.error("Error", error);
             }
         } else {
             const restaurantUser = JSON.parse(localStorage?.getItem("restaurantUser"))
-            let response = await fetch('http://localhost:3000/api/restaurant/foods', {
-                method: "POST",
-                body: JSON.stringify({
-                    name,
-                    img_path: path,
-                    price,
-                    description,
-                    ...(restaurantUser?._id && { resto_id: restaurantUser._id })
-                })
-            })
-            response = await response.json()
-            if (response.success) {
+            const data = await request.post('/api/restaurant/foods', {
+                name,
+                img_path: path,
+                price,
+                description,
+                ...(restaurantUser?._id && { resto_id: restaurantUser._id }),
+            });
+            if (data.success) {
                 alert("food item add")
                 setAddItem(false);
             } else {

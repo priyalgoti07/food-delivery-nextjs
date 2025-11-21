@@ -62,6 +62,8 @@ export async function POST(request) {
             }, { status: 404 });
         }
 
+        const phone = user.phone || user.mobile || "";
+
         // Return user data to frontend
         return NextResponse.json({
             success: true,
@@ -70,7 +72,7 @@ export async function POST(request) {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                mobile: user.mobile
+                phone,
                 // Add any other user fields you need
             }
         });

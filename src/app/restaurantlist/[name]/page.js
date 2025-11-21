@@ -3,6 +3,7 @@ import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import RestaurentCard from '@/app/_components/RestaurentCard';
 import RestaurantHeader from '@/app/_components/RestaurantHeader';
+import { request } from '@/app/lib/request';
 
 const page = () => {
     const params = useParams();
@@ -16,8 +17,7 @@ const page = () => {
     const getRestaurantes = async () => {
 
         try {
-            let res = await fetch(`http://localhost:3000/api/restaurant/foods?name=${encodeURIComponent(category)}`)
-            const data = await res.json();
+            const data = await request.get(`/api/restaurant/foods?name=${encodeURIComponent(category)}`);
             if (data.success) {
                 setRestaurants(data.restaurants);
                 console.log()

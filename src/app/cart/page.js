@@ -79,7 +79,7 @@ const CartPage = () => {
                                     <h2 className="text-lg font-semibold text-gray-800">Logged In</h2>
                                     <FaCheckCircle className="text-green-600 text-lg" />
                                 </div>
-                                <p className="text-sm text-gray-600">{user.name} | {user.mobile}</p>
+                                <p className="text-sm text-gray-600">{user.name} | {user.phone || user.mobile}</p>
                             </div>
                             <div className="bg-white shadow-md p-6 space-y-4 text-gray-800">
                                 <div className="flex items-center gap-5 font-semibold ">

@@ -4,6 +4,7 @@ import CustomersHeader from '../_components/CustomersHeader';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCart } from '../store/slices/cartSlice';
 import { useRouter } from 'next/navigation';
+import { request } from '../lib/request';
 
 const PaymentOptions = () => {
     const dispatch = useDispatch();
@@ -42,8 +43,7 @@ const PaymentOptions = () => {
         let userCity = user?.city || JSON.parse(localStorage.getItem('user'))?.city;
 
         //userCity wise delivery partner fetch
-        let deliverBoyRespone = await fetch(`http://localhost:3000/api/deliverypartners/${userCity}`);
-        let deliveryData = await deliverBoyRespone.json();
+        const deliveryData = await request.get(`/api/deliverypartners/${userCity}`);
         let deliveryBoyIDs = deliveryData.result.map(item => item._id);
         let deliveryBoy_id = deliveryBoyIDs[Math.floor(Math.random() * deliveryBoyIDs.length)]; // Randomly select a delivery partner
 
@@ -66,14 +66,7 @@ const PaymentOptions = () => {
         }
 
         try {
-            let respons = await fetch('http://localhost:3000/api/order', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(orderDetails),
-            })
-            const data = await respons.json();
+            const data = await request.post('/api/order', orderDetails);
             if (data.success) {
                 alert("Order placed successfully!");
                 dispatch(clearCart([]))

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import DeliveryHeader from '../_components/DeliveryHeader';
+import { request } from '../lib/request';
 
 const DeliveryPartner = () => {
     const router = useRouter();
@@ -69,13 +70,10 @@ const DeliveryPartner = () => {
         if (!validateBeforeSubmit()) return;
 
         try {
-            const res = await fetch('http://localhost:3000/api/deliverypartners/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...form, login: true }),
+            const data = await request.post('/api/deliverypartners/login', {
+                ...form,
+                login: true,
             });
-
-            const data = await res.json();
             if (data.success) {
                 const { result } = data;
                 delete result.password;
@@ -110,14 +108,15 @@ const DeliveryPartner = () => {
         if (hasError) return;
 
         try {
-            let response = await fetch('http://localhost:3000/api/deliverypartners/signup', {
-                method: 'POST',
-                body: JSON.stringify({ name, password, city, address, mobile }),
+            const data = await request.post('/api/deliverypartners/signup', {
+                name,
+                password,
+                city,
+                address,
+                mobile,
             });
-
-            response = await response.json();
-            if (response.success) {
-                const { result } = response;
+            if (data.success) {
+                const { result } = data;
                 delete result.password;
                 localStorage.setItem('delivertPartner', JSON.stringify(result));
                 router.push('/deliverydashboard');

@@ -5,6 +5,7 @@ import { addItemTocart, clearCart, decrementQuantity, incrementQuantity } from '
 import { useParams, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { request } from '@/app/lib/request';
 const Page = () => {
     const params = useParams();
     const searchParams = useSearchParams(); // URLSearchParams object
@@ -23,16 +24,14 @@ const Page = () => {
 
     const loadRestaurantdetails = async () => {
         try {
-            let response = await fetch(`http://localhost:3000/api/customer/${id}`)
-            response = await response.json();
-            if (response.success) {
-                setRestaurantDetails(response?.details)
-                localStorage.setItem("restaurantDetails", JSON.stringify(response?.details))
-                setFoodDetails(response?.
-                    foodItms)
+            const data = await request.get(`/api/customer/${id}`);
+            if (data.success) {
+                setRestaurantDetails(data?.details);
+                localStorage.setItem("restaurantDetails", JSON.stringify(data?.details));
+                setFoodDetails(data?.foodItms);
             }
         } catch (error) {
-
+            console.error("Failed to load restaurant details", error);
         }
     }
     const getQuantity = (itemId) => {

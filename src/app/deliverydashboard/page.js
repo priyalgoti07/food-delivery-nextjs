@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import DeliveryHeader from '../_components/DeliveryHeader';
 import { useRouter } from 'next/navigation';
+import { request } from '../lib/request';
 
 const DeliverPartnerProfile = () => {
     const router = useRouter();
@@ -22,8 +23,7 @@ const DeliverPartnerProfile = () => {
     // Fetch delivery partner orders
     const fetchPartnerOrders = async (partnerId) => {
         try {
-            const response = await fetch(`http://localhost:3000/api/deliverypartners/orders/${partnerId}`);
-            const data = await response.json();
+            const data = await request.get(`/api/deliverypartners/orders/${partnerId}`);
             if (data.success) {
                 setOrders(data.result);
             }
@@ -87,14 +87,11 @@ const DeliverPartnerProfile = () => {
                                         onChange={async (e) => {
                                             const newStatus = e.target.value;
                                             try {
-                                                const res = await fetch(`http://localhost:3000/api/deliverypartners/orders/${deliveryPartner._id}`, {
-                                                    method: "PUT",
-                                                    headers: { "Content-Type": "application/json" },
-                                                    body: JSON.stringify({ id: order?._id, status: newStatus }),
+                                                const json = await request.put(`/api/deliverypartners/orders/${deliveryPartner._id}`, {
+                                                    id: order?._id,
+                                                    status: newStatus,
                                                 });
-                                                const json = await res.json();
                                                 if (json.success) {
-                                                    // Update status locally
                                                     setOrders((prev) =>
                                                         prev.map((o) =>
                                                             o._id === order._id ? { ...o, status: newStatus } : o

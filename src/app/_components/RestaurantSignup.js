@@ -1,5 +1,6 @@
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
+import { request } from '../lib/request';
 
 const RestaurantSignUp = () => {
   const [email, setEmail] = useState('');
@@ -35,14 +36,16 @@ const RestaurantSignUp = () => {
     // If any error exists, stop here
     if (hasError) return;
     try {
-      let response = await fetch('http://localhost:3000/api/restaurant',
-        {
-          method: "POST",
-          body: JSON.stringify({ email, password, name, city, address, contact })
-        })
-      response = await response.json()
-      if (response.success) {
-        const { result } = response
+      const data = await request.post('/api/restaurant', {
+        email,
+        password,
+        name,
+        city,
+        address,
+        contact,
+      });
+      if (data.success) {
+        const { result } = data
         delete result.password
         localStorage.setItem("restaurantUser", JSON.stringify(result))
         router.push("/restaurant/dashboard")
