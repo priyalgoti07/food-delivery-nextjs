@@ -7,6 +7,7 @@ import { request } from "../lib/request";
 
 const signupInitialState = { name: "", email: "", phone: "" };
 const signupInitialErrors = { name: "", email: "", phone: "" };
+const loginInitialErrors = { email: "", otp: "" };
 
 const HomePageHeader = () => {
     const [popup, setPopup] = useState(false);
@@ -21,7 +22,7 @@ const HomePageHeader = () => {
     const [loginEmail, setLoginEmail] = useState("");
     const [otp, setOtp] = useState('');
     const [showOtp, setShowOtp] = useState(false);
-    const [loginError, setLoginError] = useState("");
+    const [loginError, setLoginError] = useState(loginInitialErrors);
     const [loginLoading, setLoginLoading] = useState(false);
     const [signupForm, setSignupForm] = useState(signupInitialState);
     const [signupErrors, setSignupErrors] = useState(signupInitialErrors);
@@ -44,7 +45,7 @@ const HomePageHeader = () => {
         setLoginEmail("");
         setOtp("");
         setShowOtp(false);
-        setLoginError("");
+        setLoginError(loginInitialErrors);
         setLoginLoading(false);
     };
 
@@ -68,12 +69,16 @@ const HomePageHeader = () => {
     const validateSignupForm = () => {
         const errors = { ...signupInitialErrors };
         let isValid = true;
+        // We create a copy of the form to clear values if they are invalid
+        // so the placeholder error becomes visible
+        let updatedForm = { ...signupForm };
 
         if (!signupForm.name.trim()) {
             errors.name = "Name is required";
             isValid = false;
         } else if (signupForm.name.trim().length < 2) {
             errors.name = "Name must be at least 2 characters";
+            updatedForm.name = ""; // Clear value to show placeholder
             isValid = false;
         }
 
@@ -82,6 +87,7 @@ const HomePageHeader = () => {
             isValid = false;
         } else if (!/^\S+@\S+\.\S+$/.test(signupForm.email.trim())) {
             errors.email = "Please enter a valid email";
+            updatedForm.email = ""; // Clear value to show placeholder
             isValid = false;
         }
 
@@ -90,16 +96,23 @@ const HomePageHeader = () => {
             isValid = false;
         } else if (!/^\d{10}$/.test(signupForm.phone)) {
             errors.phone = "Phone must be exactly 10 digits";
+            updatedForm.phone = ""; // Clear value to show placeholder
             isValid = false;
         }
 
         setSignupErrors(errors);
+
+        // Update the form state with cleared values if there were errors
+        if (!isValid) {
+            setSignupForm(updatedForm);
+        }
+
         return isValid;
     };
 
     const handleOtpChange = (value) => {
         const sanitized = value.replace(/\D/g, "").slice(0, 6);
-        if (loginError) setLoginError("");
+        if (loginError.otp) setLoginError({ ...loginInitialErrors, otp: "" });
         setOtp(sanitized);
     };
 
@@ -143,11 +156,11 @@ const HomePageHeader = () => {
     const handleLogin = async () => {
         const normalizedEmail = loginEmail.trim();
         if (!/^\S+@\S+\.\S+$/.test(normalizedEmail)) {
-            setLoginError("Please enter a valid email address");
+            setLoginError({ ...loginInitialErrors, email: "Enter a valid email address" });
             return;
         }
 
-        setLoginError("");
+        setLoginError({ ...loginInitialErrors, email: "" });
         setLoginLoading(true);
 
         try {
@@ -175,7 +188,7 @@ const HomePageHeader = () => {
     // OTP Verification Function
     const verifyOtp = async () => {
         if (!otp || otp.length !== 6) {
-            setLoginError("Please enter a valid 6-digit OTP");
+            setLoginError({ ...loginInitialErrors, otp: "Enter a valid 6-digit OTP" });
             return;
         }
 
@@ -209,6 +222,48 @@ const HomePageHeader = () => {
         setDrawerMode('login');
         resetLoginState();
         resetSignupState();
+    };
+
+    const FloatingLabelInput = ({
+        id,
+        type = "text",
+        value,
+        onChange,
+        label,
+        error,
+        isFirst = false,
+        ...props
+    }) => {
+        // Logic to control label position
+        const hasValue = value && value.toString().length > 0;
+
+        // Base styles
+        const inputBaseStyles = "peer w-full border border-gray-300 px-3 pt-8 pb-2 text-[15px] text-gray-900 focus:outline-none transition-all duration-200";
+        const borderStyle = isFirst ? "" : "border-t-0"; // Only top input gets top border
+
+        // Label logic
+        const labelPosition = hasValue ? "top-2 text-[12px]" : "top-5 text-[15px]";
+        const labelColor = error ? "text-red-500" : "text-gray-500";
+
+        return (
+            <div className="relative">
+                <input
+                    id={id}
+                    type={type}
+                    value={value}
+                    onChange={onChange}
+                    required
+                    className={`${inputBaseStyles} ${borderStyle}`}
+                    {...props}
+                />
+                <label
+                    htmlFor={id}
+                    className={`absolute left-3 transition-all duration-200 peer-focus:top-2 peer-focus:text-[12px] ${labelPosition} ${labelColor}`}
+                >
+                    {error || label}
+                </label>
+            </div>
+        );
     };
 
     return (
@@ -340,177 +395,65 @@ const HomePageHeader = () => {
                             />
                         </div>
 
-                        {drawerMode === "login" ? (
-                            <>
-                                {/* ----- LOGIN EMAIL ----- */}
-                                <div className="relative font-bold">
-                                    <input
+                        <div className="font-medium">
+                            {drawerMode === "login" ? (
+                                <>
+                                    <FloatingLabelInput
                                         id="loginEmail"
                                         type="email"
+                                        label="Email"
                                         value={loginEmail}
+                                        error={loginError.email}
+                                        isFirst={true} // Top field needs top border
                                         onChange={(e) => {
-                                            if (loginError) setLoginError("");
+                                            if (loginError.email) setLoginError({ ...loginInitialErrors, email: "" });
                                             setLoginEmail(e.target.value);
                                         }}
-                                        required
-                                        placeholder={loginError ? loginError : "Email"}
-                                        className={`peer w-full border ${loginError
-                                            ? "text-red-500 placeholder-red-500 border-gray-300"
-                                            : "border-gray-300 placeholder-transparent"
-                                            } pt-8 pb-2 px-3 text-[13px] text-gray-900 focus:outline-none transition-all duration-200`}
                                     />
 
-                                    <label
-                                        htmlFor="loginEmail"
-                                        className={`absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200
-                                     peer-placeholder-shown:top-3.5
-                                     peer-placeholder-shown:text-[13px]
-                                     peer-placeholder-shown:text-gray-400
-                                     peer-focus:top-1
-                                     peer-focus:text-[12px]
-                                     peer-focus:text-[#fc8019]
-                                     ${loginError ? "hidden" : ""}
-                                 `}
-                                    >
-                                        Email
-                                    </label>
-                                </div>
-
-                                {/* Error under email (only when NO OTP yet) */}
-                                {loginError && !showOtp && (
-                                    <p className="text-red-500 text-xs mt-1">{loginError}</p>
-                                )}
-
-                                {/* ----- OTP INPUT ----- */}
-                                {showOtp && (
-                                    <div className="relative font-bold mt-4">
-                                        <input
+                                    {showOtp && (
+                                        <FloatingLabelInput
                                             id="otp"
-                                            inputMode="numeric"
+                                            label="OTP"
                                             value={otp}
+                                            error={loginError.otp}
+                                            inputMode="numeric"
                                             onChange={(e) => handleOtpChange(e.target.value)}
-                                            required
-                                            placeholder={loginError ? loginError : "One time password"}
-                                            className={`peer w-full border ${loginError
-                                                ? "text-red-500 placeholder-red-500 border-gray-300"
-                                                : "border-gray-300 placeholder-transparent"
-                                                } pt-8 pb-2 px-3 text-[13px] text-gray-900 focus:outline-none transition-all duration-200`}
                                         />
-
-                                        <label
-                                            htmlFor="otp"
-                                            className={`absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200
-                                         peer-placeholder-shown:top-3.5
-                                         peer-placeholder-shown:text-[13px]
-                                         peer-placeholder-shown:text-gray-400
-                                         peer-focus:top-1
-                                         peer-focus:text-[12px]
-                                         peer-focus:text-[#fc8019]
-                                         ${loginError ? "hidden" : ""}
-                                     `}
-                                        >
-                                            OTP
-                                        </label>
-                                    </div>
-                                )}
-
-                                {/* Error under OTP */}
-                                {loginError && showOtp && (
-                                    <p className="text-red-500 text-xs mt-1">{loginError}</p>
-                                )}
-                            </>
-                        ) : (
-                            <>
-                                {/* ----- NAME ----- */}
-                                <div className="relative font-bold">
-                                    <input
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    <FloatingLabelInput
                                         id="signupName"
-                                        type="text"
+                                        label="Name"
                                         value={signupForm.name}
-                                        onChange={(e) => {
-                                            handleSignupChange("name", e.target.value);
-                                            // you probably already clear signupErrors.name inside handleSignupChange
-                                        }}
-                                        required
-                                        placeholder={signupErrors.name ? signupErrors.name : "Name"}
-                                        className={`peer w-full border ${signupErrors.name
-                                            ? "text-red-500 placeholder-red-500 border-gray-300"
-                                            : "border-gray-300 placeholder-transparent"
-                                            } pt-8 pb-2 px-3 text-[13px] focus:outline-none transition-all duration-200`}
+                                        error={signupErrors.name}
+                                        isFirst={true}
+                                        onChange={(e) => handleSignupChange("name", e.target.value)}
                                     />
 
-                                    {/* Hide floating label when there's an error AND the input is empty
-      (so the error placeholder doesn't collide with label). */}
-                                    <label
-                                        htmlFor="signupName"
-                                        className={`absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200
-      peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:text-gray-400
-      peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]
-      ${signupErrors.name ? "hidden" : ""}`}
-                                    >
-                                        Name
-                                    </label>
-                                </div>
-
-                                {/* ----- EMAIL ----- */}
-                                <div className="relative font-bold first:mt-0 mt-[0px]">
-                                    <input
+                                    <FloatingLabelInput
                                         id="signupEmail"
                                         type="email"
+                                        label="Email"
                                         value={signupForm.email}
+                                        error={signupErrors.email}
                                         onChange={(e) => handleSignupChange("email", e.target.value)}
-                                        required
-                                        placeholder={signupErrors.email ? signupErrors.email : "Email"}
-                                        className={`peer w-full border ${signupErrors.email
-                                            ? "text-red-500 placeholder-red-500 border-gray-300"
-                                            : "border-gray-300 placeholder-transparent"
-                                            } pt-8 pb-2 px-3 text-[13px] focus:outline-none transition-all duration-200 border-t-0`}
                                     />
-                                    <label
-                                        htmlFor="signupEmail"
-                                        className={`absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200
-      peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:text-gray-400
-      peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]
-      ${signupErrors.email ? "hidden" : ""}`}
-                                    >
-                                        Email
-                                    </label>
-                                </div>
 
-                                {/* ----- PHONE ----- */}
-                                <div className="relative font-bold first:mt-0 mt-[0px]">
-                                    <input
+                                    <FloatingLabelInput
                                         id="signupPhone"
-                                        type="text"
-                                        inputMode="numeric"
+                                        label="Phone Number"
                                         value={signupForm.phone}
-                                        onChange={(e) => {
-                                            // sanitize so only digits and limit length to 10
-                                            const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
-                                            handleSignupChange("phone", digits);
-                                        }}
+                                        error={signupErrors.phone}
+                                        inputMode="numeric"
                                         maxLength={10}
-                                        required
-                                        placeholder={signupErrors.phone ? signupErrors.phone : "Phone number"}
-                                        className={`peer w-full border ${signupErrors.phone
-                                            ? "text-red-500 placeholder-red-500 border-gray-300"
-                                            : "border-gray-300 placeholder-transparent"
-                                            } pt-8 pb-2 px-3 text-[13px] focus:outline-none transition-all duration-200 border-t-0`}
-
+                                        onChange={(e) => handleSignupChange("phone", e.target.value)}
                                     />
-                                    <label
-                                        htmlFor="signupPhone"
-                                        className={`absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200
-      peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:text-gray-400
-      peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]
-      ${signupErrors.phone ? "hidden" : ""}`}
-                                    >
-                                        Phone number
-                                    </label>
-                                </div>
-
-                            </>
-                        )}
+                                </>
+                            )}
+                        </div>
 
                         <div className="mt-6">
                             {drawerMode === "login" ? (
