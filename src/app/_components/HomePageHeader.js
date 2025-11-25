@@ -217,7 +217,7 @@ const HomePageHeader = () => {
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                     {/* Logo */}
                     <Link href={'/'} className="flex items-center space-x-2 cursor-pointer">
-                        <Image src={logo} alt="Restaurant Logo" width={100} height={100} className="rounded-2xl" />
+                        <Image src={logo} alt="Restaurant Logo" width={150} height={150} className="rounded-2xl" />
                     </Link>
 
                     {/* Navigation Links */}
@@ -342,113 +342,173 @@ const HomePageHeader = () => {
 
                         {drawerMode === "login" ? (
                             <>
+                                {/* ----- LOGIN EMAIL ----- */}
                                 <div className="relative font-bold">
                                     <input
                                         id="loginEmail"
                                         type="email"
                                         value={loginEmail}
-                                        onChange={(e) => setLoginEmail(e.target.value)}
+                                        onChange={(e) => {
+                                            if (loginError) setLoginError("");
+                                            setLoginEmail(e.target.value);
+                                        }}
                                         required
-                                        className="peer w-full border border-gray-300 pt-8 pb-2 px-3 text-[15px] text-gray-900 focus:outline-none placeholder-transparent transition-all duration-200"
-                                        placeholder="Email"
+                                        placeholder={loginError ? loginError : "Email"}
+                                        className={`peer w-full border ${loginError
+                                            ? "text-red-500 placeholder-red-500 border-gray-300"
+                                            : "border-gray-300 placeholder-transparent"
+                                            } pt-8 pb-2 px-3 text-[13px] text-gray-900 focus:outline-none transition-all duration-200`}
                                     />
+
                                     <label
                                         htmlFor="loginEmail"
-                                        className="absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[15px] peer-placeholder-shown:text-gray-400 peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]"
+                                        className={`absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200
+                                     peer-placeholder-shown:top-3.5
+                                     peer-placeholder-shown:text-[13px]
+                                     peer-placeholder-shown:text-gray-400
+                                     peer-focus:top-1
+                                     peer-focus:text-[12px]
+                                     peer-focus:text-[#fc8019]
+                                     ${loginError ? "hidden" : ""}
+                                 `}
                                     >
                                         Email
                                     </label>
                                 </div>
+
+                                {/* Error under email (only when NO OTP yet) */}
                                 {loginError && !showOtp && (
                                     <p className="text-red-500 text-xs mt-1">{loginError}</p>
                                 )}
 
+                                {/* ----- OTP INPUT ----- */}
                                 {showOtp && (
-                                    <div className="relative mt-4">
+                                    <div className="relative font-bold mt-4">
                                         <input
-                                            value={otp}
-                                            onChange={(event) => handleOtpChange(event.target.value)}
                                             id="otp"
                                             inputMode="numeric"
+                                            value={otp}
+                                            onChange={(e) => handleOtpChange(e.target.value)}
                                             required
-                                            className="peer w-full border border-gray-300 pt-8 pb-2 px-3 text-[15px] text-gray-900 focus:outline-none placeholder-transparent transition-all duration-200"
-                                            placeholder="One time password"
+                                            placeholder={loginError ? loginError : "One time password"}
+                                            className={`peer w-full border ${loginError
+                                                ? "text-red-500 placeholder-red-500 border-gray-300"
+                                                : "border-gray-300 placeholder-transparent"
+                                                } pt-8 pb-2 px-3 text-[13px] text-gray-900 focus:outline-none transition-all duration-200`}
                                         />
+
                                         <label
                                             htmlFor="otp"
-                                            className="absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[15px] peer-placeholder-shown:text-gray-400 peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]"
+                                            className={`absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200
+                                         peer-placeholder-shown:top-3.5
+                                         peer-placeholder-shown:text-[13px]
+                                         peer-placeholder-shown:text-gray-400
+                                         peer-focus:top-1
+                                         peer-focus:text-[12px]
+                                         peer-focus:text-[#fc8019]
+                                         ${loginError ? "hidden" : ""}
+                                     `}
                                         >
                                             OTP
                                         </label>
                                     </div>
                                 )}
+
+                                {/* Error under OTP */}
                                 {loginError && showOtp && (
                                     <p className="text-red-500 text-xs mt-1">{loginError}</p>
                                 )}
                             </>
                         ) : (
                             <>
+                                {/* ----- NAME ----- */}
                                 <div className="relative font-bold">
                                     <input
                                         id="signupName"
                                         type="text"
                                         value={signupForm.name}
-                                        onChange={(e) => handleSignupChange("name", e.target.value)}
+                                        onChange={(e) => {
+                                            handleSignupChange("name", e.target.value);
+                                            // you probably already clear signupErrors.name inside handleSignupChange
+                                        }}
                                         required
-                                        className={`peer w-full border ${signupErrors.name ? 'border-red-500' : 'border-gray-300'} pt-8 pb-2 px-3 text-[15px] text-gray-900 focus:outline-none placeholder-transparent transition-all duration-200`}
-                                        placeholder="Name"
+                                        placeholder={signupErrors.name ? signupErrors.name : "Name"}
+                                        className={`peer w-full border ${signupErrors.name
+                                            ? "text-red-500 placeholder-red-500 border-gray-300"
+                                            : "border-gray-300 placeholder-transparent"
+                                            } pt-8 pb-2 px-3 text-[13px] focus:outline-none transition-all duration-200`}
                                     />
+
+                                    {/* Hide floating label when there's an error AND the input is empty
+      (so the error placeholder doesn't collide with label). */}
                                     <label
                                         htmlFor="signupName"
-                                        className="absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[15px] peer-placeholder-shown:text-gray-400 peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]"
+                                        className={`absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200
+      peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:text-gray-400
+      peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]
+      ${signupErrors.name ? "hidden" : ""}`}
                                     >
                                         Name
                                     </label>
-                                    {signupErrors.name && (
-                                        <p className="text-red-500 text-xs mt-1">{signupErrors.name}</p>
-                                    )}
                                 </div>
-                                <div className="relative font-bold mt-4">
+
+                                {/* ----- EMAIL ----- */}
+                                <div className="relative font-bold first:mt-0 mt-[0px]">
                                     <input
                                         id="signupEmail"
                                         type="email"
                                         value={signupForm.email}
                                         onChange={(e) => handleSignupChange("email", e.target.value)}
                                         required
-                                        className={`peer w-full border ${signupErrors.email ? 'border-red-500' : 'border-gray-300'} pt-8 pb-2 px-3 text-[15px] text-gray-900 focus:outline-none placeholder-transparent transition-all duration-200`}
-                                        placeholder="Email"
+                                        placeholder={signupErrors.email ? signupErrors.email : "Email"}
+                                        className={`peer w-full border ${signupErrors.email
+                                            ? "text-red-500 placeholder-red-500 border-gray-300"
+                                            : "border-gray-300 placeholder-transparent"
+                                            } pt-8 pb-2 px-3 text-[13px] focus:outline-none transition-all duration-200 border-t-0`}
                                     />
                                     <label
                                         htmlFor="signupEmail"
-                                        className="absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[15px] peer-placeholder-shown:text-gray-400 peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]"
+                                        className={`absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200
+      peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:text-gray-400
+      peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]
+      ${signupErrors.email ? "hidden" : ""}`}
                                     >
                                         Email
                                     </label>
-                                    {signupErrors.email && (
-                                        <p className="text-red-500 text-xs mt-1">{signupErrors.email}</p>
-                                    )}
                                 </div>
-                                <div className="relative font-bold mt-4">
+
+                                {/* ----- PHONE ----- */}
+                                <div className="relative font-bold first:mt-0 mt-[0px]">
                                     <input
                                         id="signupPhone"
                                         type="text"
                                         inputMode="numeric"
                                         value={signupForm.phone}
-                                        onChange={(e) => handleSignupChange("phone", e.target.value)}
+                                        onChange={(e) => {
+                                            // sanitize so only digits and limit length to 10
+                                            const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+                                            handleSignupChange("phone", digits);
+                                        }}
+                                        maxLength={10}
                                         required
-                                        className={`peer w-full border ${signupErrors.phone ? 'border-red-500' : 'border-gray-300'} pt-8 pb-2 px-3 text-[15px] text-gray-900 focus:outline-none placeholder-transparent transition-all duration-200`}
-                                        placeholder="Phone number"
+                                        placeholder={signupErrors.phone ? signupErrors.phone : "Phone number"}
+                                        className={`peer w-full border ${signupErrors.phone
+                                            ? "text-red-500 placeholder-red-500 border-gray-300"
+                                            : "border-gray-300 placeholder-transparent"
+                                            } pt-8 pb-2 px-3 text-[13px] focus:outline-none transition-all duration-200 border-t-0`}
+
                                     />
                                     <label
                                         htmlFor="signupPhone"
-                                        className="absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200 peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[15px] peer-placeholder-shown:text-gray-400 peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]"
+                                        className={`absolute left-3 top-3 text-gray-500 text-[13px] bg-white px-1 transition-all duration-200
+      peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:text-gray-400
+      peer-focus:top-1 peer-focus:text-[12px] peer-focus:text-[#fc8019]
+      ${signupErrors.phone ? "hidden" : ""}`}
                                     >
                                         Phone number
                                     </label>
-                                    {signupErrors.phone && (
-                                        <p className="text-red-500 text-xs mt-1">{signupErrors.phone}</p>
-                                    )}
                                 </div>
+
                             </>
                         )}
 
@@ -456,7 +516,7 @@ const HomePageHeader = () => {
                             {drawerMode === "login" ? (
                                 showOtp ? (
                                     <button
-                                        className="w-full bg-[#fc8019] hover:bg-[#e86f0e] text-white font-semibold py-3 text-[15px] tracking-wide disabled:opacity-60 disabled:cursor-not-allowed"
+                                        className="w-full bg-[#fc8019] hover:bg-[#e86f0e] text-white font-semibold py-3 text-[13px] tracking-wide disabled:opacity-60 disabled:cursor-not-allowed"
                                         onClick={verifyOtp}
                                         disabled={loginLoading}
                                     >
@@ -464,7 +524,7 @@ const HomePageHeader = () => {
                                     </button>
                                 ) : (
                                     <button
-                                        className="w-full bg-[#fc8019] hover:bg-[#e86f0e] text-white font-semibold py-3 text-[15px] tracking-wide disabled:opacity-60 disabled:cursor-not-allowed"
+                                        className="w-full bg-[#fc8019] hover:bg-[#e86f0e] text-white font-semibold py-3 text-[13px] tracking-wide disabled:opacity-60 disabled:cursor-not-allowed"
                                         onClick={handleLogin}
                                         disabled={loginLoading}
                                     >
@@ -473,7 +533,7 @@ const HomePageHeader = () => {
                                 )
                             ) : (
                                 <button
-                                    className="w-full bg-[#fc8019] hover:bg-[#e86f0e] text-white font-semibold py-3 text-[15px] tracking-wide disabled:opacity-60 disabled:cursor-not-allowed"
+                                    className="w-full bg-[#fc8019] hover:bg-[#e86f0e] text-white font-semibold py-3 text-[13px] tracking-wide disabled:opacity-60 disabled:cursor-not-allowed"
                                     onClick={handleSignupSubmit}
                                     disabled={signupLoading}
                                 >

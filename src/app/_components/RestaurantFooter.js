@@ -1,13 +1,18 @@
 import { FaInstagram, FaFacebookF, FaTwitter, FaLinkedinIn } from 'react-icons/fa';
 import React from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import orange_logo from "../../../public/orange_logo.png";
 
 const RestaurantFooter = () => {
   return (
     <footer className="bg-[#f6f6f6] text-gray-700 py-10 mt-10">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
-        
+
         <div>
-          <h2 className="text-xl font-semibold text-orange-500 mb-2">RestoApp</h2>
+          <Link href={'/'} className="flex items-center space-x-2 cursor-pointer">
+            <Image src={orange_logo} alt="Restaurant Logo" width={150} height={150} className="rounded-2xl" />
+          </Link>
           <p className="text-xs">© {new Date().getFullYear()} RestoApp Limited</p>
         </div>
 
