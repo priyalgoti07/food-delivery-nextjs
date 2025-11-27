@@ -35,7 +35,7 @@ export async function POST(request) {
 }
 
 export async function GET(request, content) {
-    const id = content.params.id;
+    const id = content.params?.id;
     await mongoose.connect(connectionStr);
     let success = false;
     let result = await orderSchema.find({ deliveryBoy_id: id })

@@ -1,6 +1,6 @@
 import { connectionStr } from "@/app/lib/db";
 import { otpSchema } from "@/app/lib/otpModel";
-import { userSchema } from "@/app/lib/usersModel"; // Import user model
+import { userSchema } from "@/app/lib/usersModel";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
@@ -15,36 +15,47 @@ export async function POST(request) {
             }, { status: 400 });
         }
 
-        if (otp.length !== 6) {
+        await mongoose.connect(connectionStr);
+
+        // 1. Find the active OTP session for this email (Ignore the OTP value for now)
+        const otpRecord = await otpSchema.findOne({
+            mobile: email,
+            expiresAt: { $gt: new Date() }, // Check if not expired
+            verified: false,
+        });
+
+        // Case A: No active OTP session found (Expired or never requested)
+        if (!otpRecord) {
             return NextResponse.json({
                 success: false,
-                message: 'OTP must be 6 digits'
+                message: 'OTP has expired or does not exist. Please request a new one.'
             });
         }
 
-        await mongoose.connect(connectionStr);
+        // Case B: Session exists, but check max attempts
+        if (otpRecord.attempts >= 5) {
+            return NextResponse.json({
+                success: false,
+                message: 'Too many wrong attempts. Please request a new OTP.'
+            });
+        }
 
-        // Find valid OTP
-        const otpRecord = await otpSchema.findOne({
-            mobile: email,
-            otp: otp,
-            expiresAt: { $gt: new Date() },
-            verified: false,
-            attempts: { $lt: 5 } // Max 5 attempts
-        });
-
-        if (!otpRecord) {
-            // Increment attempts if OTP exists but is invalid
+        // Case C: Check if the User entered the WRONG OTP
+        if (otpRecord.otp !== otp) {
+            // Increment attempt count
             await otpSchema.updateOne(
-                { mobile: email, expiresAt: { $gt: new Date() } },
+                { _id: otpRecord._id },
                 { $inc: { attempts: 1 } }
             );
 
+            // RETURN THE SPECIFIC ERROR MESSAGE YOU REQUESTED
             return NextResponse.json({
                 success: false,
-                message: 'Invalid OTP or OTP has expired. Please request a new OTP.'
+                message: 'Invalid OTP, please enter valid OTP'
             });
         }
+
+        // --- SUCCESS LOGIC (OTP Matches) ---
 
         // Mark OTP as verified
         await otpSchema.updateOne(
@@ -52,9 +63,9 @@ export async function POST(request) {
             { verified: true }
         );
 
-        // Get user data from database
+        // Get user data
         const user = await userSchema.findOne({ email: email });
-        
+        console.log("user", user)
         if (!user) {
             return NextResponse.json({
                 success: false,
@@ -64,7 +75,6 @@ export async function POST(request) {
 
         const phone = user.phone || user.mobile || "";
 
-        // Return user data to frontend
         return NextResponse.json({
             success: true,
             message: 'OTP verified successfully',
@@ -72,17 +82,16 @@ export async function POST(request) {
                 id: user._id,
                 name: user.name,
                 email: user.email,
+                address: user.address,
                 phone,
-                // Add any other user fields you need
             }
         });
 
     } catch (error) {
         console.error('Email OTP verification error:', error);
-
         return NextResponse.json({
             success: false,
-            message: 'Failed to verify OTP. Please try again.',
+            message: 'Failed to verify OTP.',
             error: error.message
         }, { status: 500 });
     }

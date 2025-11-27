@@ -4,8 +4,9 @@ import React, { useEffect, useState } from 'react'
 import RestaurentCard from '@/app/_components/RestaurentCard';
 import RestaurantHeader from '@/app/_components/RestaurantHeader';
 import { request } from '@/app/lib/request';
+import CustomersHeader from '@/app/_components/CustomersHeader';
 
-const page = () => {
+const Page = () => {
     const params = useParams();
     const [restaurants, setRestaurants] = useState([]);
     const category = decodeURIComponent(params.name || ''); // e.g., "Samosas"
@@ -29,11 +30,12 @@ const page = () => {
         }
 
     }
-    
+
     return (
         <div>
-            <RestaurantHeader />
-            <div className="max-w-6xl mx-auto px-4 py-10">
+            {/* <RestaurantHeader /> */}
+            <CustomersHeader />
+            <div className="max-w-6xl mx-auto px-4 py-30">
                 {/* Header */}
                 <div>
                     <h1 className="text-4xl font-bold mb-4">{category}</h1>
@@ -54,4 +56,4 @@ const page = () => {
     )
 }
 
-export default page
+export default Page

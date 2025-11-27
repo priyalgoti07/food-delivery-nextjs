@@ -10,7 +10,7 @@ const PaymentOptions = () => {
     const dispatch = useDispatch();
     const router = useRouter();
 
-    const [isCODOpen, setIsCODOpen] = useState(false);
+    const [isCODOpen, setIsCODOpen] = useState(true);
 
     const toggleCOD = () => setIsCODOpen(!isCODOpen);
 

@@ -1,94 +1,491 @@
 'use client'
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import logo from '../../../public/food-logo.png';
 import { usePathname, useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import logo from "../../../public/food-logo.png";
+
+import {
+    FiHome,
+    FiUser,
+    FiLogOut,
+    FiShoppingCart,
+    FiPlus,
+    FiMenu,
+    FiX,
+    FiChevronDown,
+    FiSettings,
+    FiBell,
+    FiSearch
+} from 'react-icons/fi';
+import {
+    HiOutlineShoppingCart,
+    HiOutlineUser,
+    HiOutlinePlusCircle
+} from 'react-icons/hi';
 
 const RestaurantHeader = () => {
-    const [details, setDetails] = useState();
+    const [details, setDetails] = useState(null);
+    const [popup, setPopup] = useState(false);
+    const [mobileMenu, setMobileMenu] = useState(false);
+    const [userDropdown, setUserDropdown] = useState(false);
+    const [cartItems, setCartItems] = useState(6); // Example cart count
+    const [scrolled, setScrolled] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
+    const searchRef = useRef(null);
     const router = useRouter();
     const pathName = usePathname();
-    const [popup, setPopup] = useState(false);
+
+    // Scroll effect
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 50);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Click outside to close search
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setSearchOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     useEffect(() => {
-        let storeData = localStorage.getItem("restaurantUser")
+        let storeData = localStorage.getItem("restaurantUser");
         if (!storeData && pathName === "/restaurant/dashboard") {
-            router.push("/restaurant")
+            router.push("/restaurant");
         } else if (storeData && pathName === "/restaurant") {
-            router.push("/restaurant/dashboard")
+            router.push("/restaurant/dashboard");
         } else {
-            setDetails(JSON.parse(storeData))
+            setDetails(JSON.parse(storeData));
         }
-    }, [])
+    }, [pathName, router]);
+
     const handleLogout = () => {
-        localStorage.removeItem("restaurantUser")
-        router.push("/restaurant")
-    }
+        localStorage.removeItem("restaurantUser");
+        setDetails(null);
+        setPopup(false);
+        router.push("/restaurant");
+    };
+
+    const menuVariants = {
+        closed: {
+            opacity: 0,
+            scale: 0.8,
+            transition: {
+                duration: 0.2
+            }
+        },
+        open: {
+            opacity: 1,
+            scale: 1,
+            transition: {
+                duration: 0.3,
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        closed: { x: -20, opacity: 0 },
+        open: { x: 0, opacity: 1 }
+    };
+
+    const searchVariants = {
+        closed: { width: 0, opacity: 0 },
+        open: { width: 300, opacity: 1 }
+    };
+    console.log("calllll goti piyu");
+
     return (
-        <header className="w-full py-4 px-6 shadow-md">
-            <div className="max-w-7xl mx-auto flex justify-between items-center">
-                {/* Logo */}
-                <div className="flex items-center space-x-2">
-                    <Image src={logo} alt="Restaurant Logo" width={60} height={60} />
-                    <h1 className="text-xl font-bold">Restaurant Portal</h1>
-                </div>
+        <>
+            <motion.header
+                className={`w-full fixed top-0 z-50 transition-all duration-500 ${scrolled
+                    ? 'bg-white/95 backdrop-blur-xl shadow-2xl py-2'
+                    : 'bg-gradient-to-r from-[#fc8019] via-[#ff6b35] to-[#ff512f] py-4'
+                    }`}
+                initial={{ y: -100 }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.6, type: "spring" }}
+            >
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center">
 
-                {/* Navigation Links */}
-                <nav className='flex justify-around'>
-                    <ul className="flex space-x-6">
-                        <li>
-                            <Link href="/" className="hover:text-gray-200 transition">
-                                Home
+                        {/* Logo Section */}
+                        <motion.div
+                            className="flex items-center space-x-3"
+                            whileHover={{ scale: 0.95 }}
+                        >
+                            {/* <div className={`relative rounded-2xl p-1 ${scrolled ? 'bg-gradient-to-r from-[#fc8019] to-[#ff512f]' : 'bg-white/20' */}
+                            <Link href={'/'} className="flex items-center space-x-2 cursor-pointer">
+                                <Image src={logo} alt="Restaurant Logo" width={120} height={120} className="rounded-2xl" />
                             </Link>
-                        </li>
-                        {
-                            details && details.name ?
+                            {/* </div> */}
+                        </motion.div>
+
+                        {/* Desktop Navigation */}
+                        <nav className="hidden lg:flex items-center space-x-1">
+                            <motion.div
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <Link
+                                    href="/"
+                                    className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 ${scrolled
+                                        ? 'text-gray-700 hover:bg-[#fc8019] hover:text-white'
+                                        : 'text-white hover:bg-white/20'
+                                        }`}
+                                >
+                                    <FiHome size={18} />
+                                    <span>Home</span>
+                                </Link>
+                            </motion.div>
+
+                            {/* Search Bar */}
+                            <motion.div
+                                className="relative"
+                                ref={searchRef}
+                                variants={searchVariants}
+                                initial="closed"
+                                animate={searchOpen ? "open" : "closed"}
+                            >
+                                <input
+                                    type="text"
+                                    placeholder="Search restaurants..."
+                                    className={`px-4 py-2 rounded-xl bg-white/20 backdrop-blur-sm border-2 ${scrolled
+                                        ? 'border-gray-300 text-gray-800 placeholder-gray-500'
+                                        : 'border-white/30 text-white placeholder-white/70'
+                                        } focus:outline-none focus:border-[#fc8019] transition-all`}
+                                    style={{ width: searchOpen ? 300 : 0, padding: searchOpen ? '0.5rem 1rem' : 0 }}
+                                />
+                            </motion.div>
+
+                            {details ? (
                                 <>
-                                    <li>
-                                        <button className='cursor-pointer' onClick={() => setPopup(true)}>Logout</button>
-                                    </li>
-                                    <li>
-                                        <Link href="/profile" className="hover:text-gray-200 transition">
-                                            Profile
+                                    {/* Cart */}
+                                    <motion.div
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="relative"
+                                    >
+                                        <button
+                                            className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 relative ${scrolled
+                                                ? 'text-gray-700 hover:bg-[#fc8019] hover:text-white'
+                                                : 'text-white hover:bg-white/20'
+                                                }`}
+                                        >
+                                            <HiOutlineShoppingCart size={20} />
+                                            <span>Cart</span>
+                                            {cartItems > 0 && (
+                                                <motion.span
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center"
+                                                    initial={{ scale: 0 }}
+                                                    animate={{ scale: 1 }}
+                                                    transition={{ type: "spring", stiffness: 500 }}
+                                                >
+                                                    {cartItems}
+                                                </motion.span>
+                                            )}
+                                        </button>
+                                    </motion.div>
+
+                                    {/* Add Restaurant */}
+                                    <motion.div
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        <Link
+                                            href="/restaurant/add"
+                                            className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 ${scrolled
+                                                ? 'bg-[#fc8019] text-white hover:bg-[#e86f0e]'
+                                                : 'bg-white/20 text-white hover:bg-white/30'
+                                                }`}
+                                        >
+                                            <HiOutlinePlusCircle size={18} />
+                                            <span>Add Restaurant</span>
                                         </Link>
-                                    </li>
+                                    </motion.div>
+
+                                    {/* User Dropdown */}
+                                    <div className="relative">
+                                        <motion.button
+                                            onClick={() => setUserDropdown(!userDropdown)}
+                                            className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 ${scrolled
+                                                ? 'text-gray-700 hover:bg-[#fc8019] hover:text-white'
+                                                : 'text-white hover:bg-white/20'
+                                                }`}
+                                            whileHover={{ scale: 1.05 }}
+                                        >
+                                            <HiOutlineUser size={18} />
+                                            <span className="max-w-24 truncate">{details.name}</span>
+                                            <motion.div
+                                                animate={{ rotate: userDropdown ? 180 : 0 }}
+                                                transition={{ duration: 0.3 }}
+                                            >
+                                                <FiChevronDown size={16} />
+                                            </motion.div>
+                                        </motion.button>
+
+                                        <AnimatePresence>
+                                            {userDropdown && (
+                                                <motion.div
+                                                    className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-white/20 py-2 z-50"
+                                                    initial={{ opacity: 0, y: -10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: -10 }}
+                                                    transition={{ duration: 0.2 }}
+                                                >
+                                                    <Link
+                                                        href="/profile"
+                                                        className="flex items-center space-x-2 px-4 py-2 hover:bg-[#fc8019] hover:text-white transition-all duration-300"
+                                                    >
+                                                        <FiUser size={16} />
+                                                        <span>Profile</span>
+                                                    </Link>
+                                                    <Link
+                                                        href="/settings"
+                                                        className="flex items-center space-x-2 px-4 py-2 hover:bg-[#fc8019] hover:text-white transition-all duration-300"
+                                                    >
+                                                        <FiSettings size={16} />
+                                                        <span>Settings</span>
+                                                    </Link>
+                                                    <div className="border-t border-gray-200 my-1"></div>
+                                                    <button
+                                                        onClick={() => setPopup(true)}
+                                                        className="flex items-center space-x-2 w-full text-left px-4 py-2 text-red-600 hover:bg-red-500 hover:text-white transition-all duration-300"
+                                                    >
+                                                        <FiLogOut size={16} />
+                                                        <span>Logout</span>
+                                                    </button>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
                                 </>
-                                :
-                                <li>
-
-                                    <Link href="/restaurant" className="hover:text-gray-200 transition">
-                                        Login/SignUp
+                            ) : (
+                                <motion.div
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <Link
+                                        href="/restaurant"
+                                        className={`flex items-center space-x-2 px-6 py-2 rounded-xl font-semibold transition-all duration-300 ${scrolled
+                                            ? 'bg-[#fc8019] text-white hover:bg-[#e86f0e]'
+                                            : 'bg-white text-[#fc8019] hover:bg-gray-100'
+                                            } shadow-lg hover:shadow-xl`}
+                                    >
+                                        <FiUser size={18} />
+                                        <span>Login/SignUp</span>
                                     </Link>
-                                </li>
-                        }
+                                </motion.div>
+                            )}
+                        </nav>
 
-                    </ul>
-                </nav>
-            </div>
-            {popup &&
-                <div className="fixed inset-0 flex items-center justify-center bg-white/30 backdrop-blur-sm z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-                        <h2 className="text-lg font-semibold mb-4">Are you sure you want to logout?</h2>
-                        <div className="flex justify-end gap-4">
-                            <button
-                                onClick={() => setPopup(false)}
-                                className="px-4 py-2 rounded border text-gray-600 hover:bg-gray-100"
+                        {/* Mobile Menu Button */}
+                        <div className="flex items-center space-x-2 lg:hidden">
+                            {/* Search Button */}
+                            <motion.button
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => setSearchOpen(!searchOpen)}
+                                className={`p-2 rounded-xl ${scrolled
+                                    ? 'text-gray-700 hover:bg-[#fc8019] hover:text-white'
+                                    : 'text-white hover:bg-white/20'
+                                    }`}
                             >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleLogout}
-                                className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600"
+                                <FiSearch size={20} />
+                            </motion.button>
+
+                            {/* Cart for Mobile */}
+                            {details && (
+                                <motion.button
+                                    whileTap={{ scale: 0.9 }}
+                                    className={`p-2 rounded-xl relative ${scrolled
+                                        ? 'text-gray-700 hover:bg-[#fc8019] hover:text-white'
+                                        : 'text-white hover:bg-white/20'
+                                        }`}
+                                >
+                                    <HiOutlineShoppingCart size={20} />
+                                    {cartItems > 0 && (
+                                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                            {cartItems}
+                                        </span>
+                                    )}
+                                </motion.button>
+                            )}
+
+                            <motion.button
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => setMobileMenu(!mobileMenu)}
+                                className={`p-2 rounded-xl ${scrolled
+                                    ? 'text-gray-700 hover:bg-[#fc8019] hover:text-white'
+                                    : 'text-white hover:bg-white/20'
+                                    }`}
                             >
-                                Yes, Logout
-                            </button>
+                                {mobileMenu ? <FiX size={24} /> : <FiMenu size={24} />}
+                            </motion.button>
                         </div>
                     </div>
-                </div>
-            }
 
-        </header>
+                    {/* Mobile Search Bar */}
+                    <AnimatePresence>
+                        {searchOpen && (
+                            <motion.div
+                                className="lg:hidden mt-4"
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                            >
+                                <input
+                                    type="text"
+                                    placeholder="Search restaurants..."
+                                    className="w-full px-4 py-3 rounded-xl bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white placeholder-white/70 focus:outline-none focus:border-white"
+                                />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                {/* Mobile Navigation Menu */}
+                <AnimatePresence>
+                    {mobileMenu && (
+                        <motion.div
+                            className="lg:hidden bg-white/95 backdrop-blur-xl border-t border-white/20"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <div className="max-w-7xl mx-auto px-4 py-4">
+                                <motion.div
+                                    className="flex flex-col space-y-2"
+                                    variants={menuVariants}
+                                    initial="closed"
+                                    animate="open"
+                                >
+                                    <motion.div variants={itemVariants}>
+                                        <Link
+                                            href="/"
+                                            className="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-[#fc8019] hover:text-white transition-all duration-300 text-gray-800"
+                                            onClick={() => setMobileMenu(false)}
+                                        >
+                                            <FiHome size={18} />
+                                            <span>Home</span>
+                                        </Link>
+                                    </motion.div>
+
+                                    {details ? (
+                                        <>
+                                            <motion.div variants={itemVariants}>
+                                                <Link
+                                                    href="/restaurant/add"
+                                                    className="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-[#fc8019] hover:text-white transition-all duration-300 text-gray-800"
+                                                    onClick={() => setMobileMenu(false)}
+                                                >
+                                                    <HiOutlinePlusCircle size={18} />
+                                                    <span>Add Restaurant</span>
+                                                </Link>
+                                            </motion.div>
+                                            <motion.div variants={itemVariants}>
+                                                <Link
+                                                    href="/profile"
+                                                    className="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-[#fc8019] hover:text-white transition-all duration-300 text-gray-800"
+                                                    onClick={() => setMobileMenu(false)}
+                                                >
+                                                    <FiUser size={18} />
+                                                    <span>Profile</span>
+                                                </Link>
+                                            </motion.div>
+                                            <motion.div variants={itemVariants}>
+                                                <button
+                                                    onClick={() => {
+                                                        setPopup(true);
+                                                        setMobileMenu(false);
+                                                    }}
+                                                    className="flex items-center space-x-3 w-full text-left px-4 py-3 rounded-xl hover:bg-red-500 hover:text-white transition-all duration-300 text-red-600"
+                                                >
+                                                    <FiLogOut size={18} />
+                                                    <span>Logout</span>
+                                                </button>
+                                            </motion.div>
+                                        </>
+                                    ) : (
+                                        <motion.div variants={itemVariants}>
+                                            <Link
+                                                href="/restaurant"
+                                                className="flex items-center space-x-3 px-4 py-3 rounded-xl bg-[#fc8019] text-white hover:bg-[#e86f0e] transition-all duration-300"
+                                                onClick={() => setMobileMenu(false)}
+                                            >
+                                                <FiUser size={18} />
+                                                <span>Login/SignUp</span>
+                                            </Link>
+                                        </motion.div>
+                                    )}
+                                </motion.div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </motion.header>
+
+            {/* Spacer for fixed header */}
+            <div className="h-20"></div>
+
+            {/* Logout Confirmation Modal */}
+            <AnimatePresence>
+                {popup && (
+                    <motion.div
+                        className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <motion.div
+                            className="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full mx-4"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.8, opacity: 0 }}
+                            transition={{ type: "spring", damping: 25 }}
+                        >
+                            <div className="text-center mb-6">
+                                <motion.div
+                                    className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                                    whileHover={{ scale: 1.1 }}
+                                >
+                                    <FiLogOut className="text-red-500 text-3xl" />
+                                </motion.div>
+                                <h2 className="text-2xl font-bold text-gray-800 mb-2">Confirm Logout</h2>
+                                <p className="text-gray-600">Are you sure you want to logout from your restaurant account?</p>
+                            </div>
+                            <div className="flex justify-center space-x-4">
+                                <motion.button
+                                    onClick={() => setPopup(false)}
+                                    className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300 font-semibold"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    Cancel
+                                </motion.button>
+                                <motion.button
+                                    onClick={handleLogout}
+                                    className="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 font-semibold"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    Logout
+                                </motion.button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </>
     );
 };
 
