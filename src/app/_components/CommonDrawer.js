@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { Box, SwipeableDrawer } from "@mui/material";
 import { request } from "../lib/request";
@@ -61,9 +61,12 @@ const CommonDrawer = ({
     paperSx = {},
     slotProps = {},
     onUserAuthenticated,
+
+    loginMode = 'login',
     ...rest
 }) => {
-    const [drawerMode, setDrawerMode] = useState("login");
+    const [drawerMode, setDrawerMode] = useState('login');
+
     const [loginEmail, setLoginEmail] = useState("");
     const [otp, setOtp] = useState('');
     const [showOtp, setShowOtp] = useState(false);
@@ -73,6 +76,54 @@ const CommonDrawer = ({
     const [signupForm, setSignupForm] = useState(signupInitialState);
     const [signupErrors, setSignupErrors] = useState(signupInitialErrors);
     const [signupLoading, setSignupLoading] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false);
+
+    const googleButtonRef = useRef(null);
+
+    useEffect(() => {
+        setDrawerMode(loginMode)
+    }, [loginMode])
+
+    const handleGoogleSignIn = useCallback(async (response) => {
+        setGoogleLoading(true);
+        try {
+            // Verify token and get user info from our API
+            const data = await request.post("/api/auth/google", {
+                idToken: response.credential,
+            });
+
+            if (data.success) {
+                localStorage.setItem('user', JSON.stringify(data.user));
+                onUserAuthenticated?.(data.user);
+
+                if (data.isNewUser) {
+                    alert(`Welcome ${data.user.name}! Your account has been created successfully.`);
+                } else {
+                    alert(`Welcome back ${data.user.name}!`);
+                }
+                // Reset states and close drawer
+                setDrawerMode("login");
+                setLoginEmail("");
+                setOtp("");
+                setShowOtp(false);
+                setLoginError(loginInitialErrors);
+                setLoginLoading(false);
+                setSignupForm(signupInitialState);
+                setSignupErrors(signupInitialErrors);
+                setSignupLoading(false);
+                if (typeof onClose === "function") {
+                    onClose();
+                }
+            } else {
+                alert(data.message || "Google sign-in failed. Please try again.");
+            }
+        } catch (error) {
+            console.error("Google sign-in error:", error);
+            alert("Error signing in with Google. Please try again.");
+        } finally {
+            setGoogleLoading(false);
+        }
+    }, [onUserAuthenticated, onClose]);
 
     useEffect(() => {
         let interval;
@@ -83,6 +134,66 @@ const CommonDrawer = ({
         }
         return () => clearInterval(interval);
     }, [resendTimer]);
+
+    // Load Google Identity Services script
+    useEffect(() => {
+        if (!open || !process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) return;
+
+        const initializeGoogleSignIn = () => {
+            if (window.google && googleButtonRef.current) {
+                try {
+                    window.google.accounts.id.initialize({
+                        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+                        callback: handleGoogleSignIn,
+                    });
+                    window.google.accounts.id.renderButton(
+                        googleButtonRef.current,
+                        {
+                            type: "standard",
+                            theme: "outline",
+                            size: "large",
+                            width: "100%",
+                            text: "signin_with",
+                        }
+                    );
+                } catch (error) {
+                    console.error("Error initializing Google Sign-In:", error);
+                }
+            }
+        };
+
+        // Check if Google script is already loaded
+        if (window.google) {
+            initializeGoogleSignIn();
+            return;
+        }
+
+        // Load the script if not already present
+        if (document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
+            // Script is already in DOM, wait for it to load
+            const checkGoogle = setInterval(() => {
+                if (window.google) {
+                    clearInterval(checkGoogle);
+                    initializeGoogleSignIn();
+                }
+            }, 100);
+            return () => clearInterval(checkGoogle);
+        }
+
+        const script = document.createElement("script");
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.defer = true;
+        script.onload = initializeGoogleSignIn;
+        script.onerror = () => {
+            console.error("Failed to load Google Identity Services script");
+        };
+        document.body.appendChild(script);
+
+        return () => {
+            // Cleanup is handled by React
+        };
+    }, [open, handleGoogleSignIn]);
 
     const resetLoginState = () => {
         setLoginEmail("");
@@ -403,8 +514,6 @@ const CommonDrawer = ({
                                     label="Address"
                                     value={signupForm.address}
                                     error={signupErrors.address}
-                                    inputMode="numeric"
-                                    maxLength={10}
                                     onChange={(e) => handleSignupChange("address", e.target.value)}
                                 />
                             </>
@@ -441,7 +550,7 @@ const CommonDrawer = ({
                                 <button
                                     className="w-full bg-[#fc8019] hover:bg-[#e86f0e] text-white font-semibold py-3 text-[13px] tracking-wide disabled:opacity-60 disabled:cursor-not-allowed"
                                     onClick={handleLogin}
-                                    disabled={loginLoading}
+                                    disabled={loginLoading || googleLoading}
                                 >
                                     {loginLoading ? "Sending..." : "LOGIN"}
                                 </button>
@@ -450,12 +559,29 @@ const CommonDrawer = ({
                             <button
                                 className="w-full bg-[#fc8019] hover:bg-[#e86f0e] text-white font-semibold py-3 text-[13px] tracking-wide disabled:opacity-60 disabled:cursor-not-allowed"
                                 onClick={handleSignupSubmit}
-                                disabled={signupLoading}
+                                disabled={signupLoading || googleLoading}
                             >
                                 {signupLoading ? "Creating..." : "CONTINUE"}
                             </button>
                         )}
                     </div>
+
+                    {/* Google Sign-In Button */}
+                    {!showOtp && (
+                        <div className="mt-4">
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="flex-1 border-t border-gray-300"></div>
+                                <span className="text-gray-500 text-sm">OR</span>
+                                <div className="flex-1 border-t border-gray-300"></div>
+                            </div>
+                            <div ref={googleButtonRef} className="w-full"></div>
+                            {googleLoading && (
+                                <p className="text-center text-sm text-gray-500 mt-2">
+                                    Signing in with Google...
+                                </p>
+                            )}
+                        </div>
+                    )}
 
                     <p className="text-[11px] text-gray-700 mt-4 leading-relaxed font-medium">
                         {`By clicking ${drawerMode === 'login' ? 'on Login' : 'an account'} , I accept the`}{" "}

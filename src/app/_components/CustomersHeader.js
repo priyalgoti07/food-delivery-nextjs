@@ -1,23 +1,23 @@
 'use client'
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
+import { useSelector } from "react-redux";
+import CommonDrawer from "./CommonDrawer";
+import { useRouter } from "next/navigation";
+import ylogo from "../../../public/y_logo.png";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSelector } from "react-redux";
-import { useRouter } from "next/navigation";
 import { FiUser, FiLogOut, FiShoppingCart, FiPlus, FiMenu, FiX } from "react-icons/fi";
-import ylogo from "../../../public/y_logo.png";
-import CommonDrawer from "./CommonDrawer";
 
 
 const CustomersHeader = () => {
     const router = useRouter();
-    const [popup, setPopup] = useState(false);
-    const [mobileMenu, setMobileMenu] = useState(false);
-    const [scrolled, setScrolled] = useState(false);
-    const cartItems = useSelector((state) => state.cart.items);
     const [user, setUser] = useState(null);
+    const [popup, setPopup] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+    const [mobileMenu, setMobileMenu] = useState(false);
     const [openDrawer, setOpenDrawer] = useState(false);
+    const cartItems = useSelector((state) => state.cart.items);
 
     useEffect(() => {
         const userStorage = JSON.parse(localStorage.getItem('user'));
@@ -266,9 +266,6 @@ const CustomersHeader = () => {
                     </AnimatePresence>
                 </div>
             </motion.header>
-
-            {/* Spacer for fixed header
-            <div className="h-20"></div> */}
 
             {/* Logout Confirmation Modal */}
             <AnimatePresence>

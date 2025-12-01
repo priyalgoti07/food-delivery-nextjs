@@ -5,6 +5,7 @@ import { FaCheckCircle } from 'react-icons/fa';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import CustomersHeader from '../_components/CustomersHeader';
+import CommonDrawer from '../_components/CommonDrawer';
 import { incrementQuantity, decrementQuantity } from '@/app/store/slices/cartSlice';
 
 const CartPage = () => {
@@ -12,6 +13,8 @@ const CartPage = () => {
     const dispatch = useDispatch();
     const [user, setUser] = useState(null);
     const storedUser = localStorage.getItem('user');
+    const [openDrawer, setOpenDrawer] = useState(false);
+    const [drawerMode, setDrawerMode] = useState("login");
     const cartItems = useSelector((state) => state.cart.items);
     const restoDeatils = JSON.parse(localStorage.getItem("restaurantDetails"))
 
@@ -60,12 +63,18 @@ const CartPage = () => {
                                 <h2 className="text-lg font-semibold text-gray-800">Account</h2>
                                 <p className="text-sm text-gray-500">To place your order now, log in to your existing account or sign up.</p>
                                 <div className="flex gap-4">
-                                    <Link href="/user-auth" className="w-1/2 bg-white border border-green-600 text-green-600 text-center py-2  hover:bg-green-50">
+                                    <span onClick={() => {
+                                        setDrawerMode('login')
+                                        setOpenDrawer(true)
+                                    }} className="cursor-pointer w-1/2 bg-white border border-green-600 text-green-600 text-center py-2  hover:bg-green-50">
                                         Have an account? <br />
-                                        LOG IN</Link>
-                                    <Link href="/user-auth" className="w-1/2 bg-green-600 text-white text-center py-2  hover:bg-green-700">
-                                        New to Foody? <br />
-                                        SIGN UP</Link>
+                                        LOG IN</span>
+                                    <span onClick={() => {
+                                        setDrawerMode('signup')
+                                        setOpenDrawer(true)
+                                    }} className="cursor-pointer w-1/2 bg-green-600 text-white text-center py-2  hover:bg-green-700">
+                                        New to Yukky? <br />
+                                        SIGN UP</span>
                                 </div>
                             </div>
                             <div>
@@ -163,6 +172,13 @@ const CartPage = () => {
                     </div>
                 </div>
             </div>
+            {<CommonDrawer
+                open={openDrawer}
+                onClose={() => setOpenDrawer(false)}
+                onOpen={() => setOpenDrawer(true)}
+                onUserAuthenticated={(authUser) => setUser(authUser)}
+                loginMode={drawerMode}
+            />}
         </>
     );
 };

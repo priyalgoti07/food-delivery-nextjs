@@ -14,6 +14,7 @@ const HomePageHeader = () => {
         return null;
     });
     const [openDrawer, setOpenDrawer] = useState(false);
+
     const handleLogout = () => {
         localStorage.removeItem("user")
         setUser(null)
@@ -64,7 +65,7 @@ const HomePageHeader = () => {
                 {popup &&
                     <div className="fixed inset-0 flex items-center justify-center bg-white/30 backdrop-blur-sm z-50">
                         <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-                            <h2 className="text-lg font-semibold mb-4">Are you sure you want to logout?</h2>
+                            <h2 className="text-lg font-semibold mb-4 text-gray-600">Are you sure you want to logout?</h2>
                             <div className="flex justify-end gap-4">
                                 <button
                                     onClick={() => setPopup(false)}

@@ -9,6 +9,12 @@ const userModel = new mongoose.Schema(
         city: String,
         address: String,
         mobile: String,
+        authProvider: {
+            type: String,
+            enum: ["email", "google"],
+            default: "email",
+        },
+        googleId: String,
     },
     { timestamps: true }
 );
