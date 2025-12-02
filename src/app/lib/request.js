@@ -1,12 +1,16 @@
 import axios from "axios";
 
-const DEFAULT_BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    process.env.NEXT_API_BASE_URL ||
-    "http://localhost:3000";
+const isServer = typeof window === "undefined";
+
+const DEFAULT_BASE_URL = isServer
+    ? process.env.NEXT_PUBLIC_API_BASE_URL // Server (Vercel or local)
+    : process.env.NEXT_PUBLIC_API_BASE_URL; // Client browser
+
+// If nothing found → fallback to localhost (dev only)
+const FINAL_BASE_URL = DEFAULT_BASE_URL || "http://localhost:3000";
 
 const api = axios.create({
-    baseURL: DEFAULT_BASE_URL,
+    baseURL: FINAL_BASE_URL,
     headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
