@@ -1,33 +1,57 @@
 // const { username, password } = process.env
 // export const connectionStr = `mongodb+srv://${username}:${password}@cluster0.kqrqvex.mongodb.net/restoDB?retryWrites=true&w=majority&appName=Cluster0`;
-import { MongoClient } from "mongodb";
 
-// Use a single environment variable
-export const connectionStr = process.env.MONGODB_URI;
+import mongoose from 'mongoose';
 
-if (!connectionStr) {
-    throw new Error("MONGODB_URI is not set in environment variables.");
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+    throw new Error(
+        'Please define the MONGODB_URI environment variable inside .env.local or Vercel Settings'
+    );
 }
 
-// Cache system (same as before)
-let cached = global.mongo;
-if (!cached) cached = global.mongo = { conn: null, promise: null };
+// ---------------------------------------------------------
+// COMPATIBILITY LAYER
+// We export connectionStr because your existing files use it.
+// ---------------------------------------------------------
+export const connectionStr = MONGODB_URI;
 
-export async function connectToDatabase() {
-    if (cached.conn) return cached.conn;
-    if (!cached.promise) {
-        const client = new MongoClient(connectionStr, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+/**
+ * Global is used here to maintain a cached connection across hot reloads
+ * in development. This prevents connections growing exponentially
+ * during API Route usage.
+ */
+let cached = global.mongoose;
 
-        cached.promise = client.connect().then((client) => ({
-            client,
-            db: client.db(),
-        }));
+if (!cached) {
+    cached = global.mongoose = { conn: null, promise: null };
+}
+
+async function dbConnect() {
+    if (cached.conn) {
+        return cached.conn;
     }
-    cached.conn = await cached.promise;
+
+    if (!cached.promise) {
+        const opts = {
+            bufferCommands: false,
+        };
+
+        cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+            return mongoose;
+        });
+    }
+
+    try {
+        cached.conn = await cached.promise;
+    } catch (e) {
+        cached.promise = null;
+        throw e;
+    }
+
     return cached.conn;
 }
 
+export default dbConnect;
 
