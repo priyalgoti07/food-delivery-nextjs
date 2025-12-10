@@ -29,11 +29,6 @@ const PaymentOptions = () => {
     const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
     const totalAmount = cartItems.reduce((total, item) => total + item.quantity * item.price, 0);
 
-    // useEffect(() => {
-    //     if (totalAmount === 0) {
-    //         router.push('/'); // Redirect to home if cart is empty
-    //     }
-    // }, [totalAmount])
     const handleOrder = async () => {
         //user_id fetch from localStorage or user state
         let user_id = user?._id || JSON.parse(localStorage.getItem('user'))?._id;

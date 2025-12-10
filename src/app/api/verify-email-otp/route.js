@@ -79,9 +79,10 @@ export async function POST(request) {
             success: true,
             message: 'OTP verified successfully',
             user: {
-                id: user._id,
+                _id: user._id,
                 name: user.name,
                 email: user.email,
+                city: user.city || "",
                 address: user.address,
                 phone,
             }

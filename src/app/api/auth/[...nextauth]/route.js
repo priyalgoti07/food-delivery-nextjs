@@ -56,7 +56,7 @@ const handler = NextAuth({
                     const dbUser = await userSchema.findOne({ email: normalizedEmail });
 
                     if (dbUser) {
-                        token.id = dbUser._id.toString();
+                        token._id = dbUser._id.toString();
                         token.name = dbUser.name;
                         token.email = dbUser.email;
                         token.phone = dbUser.phone;

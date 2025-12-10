@@ -21,13 +21,16 @@ const HomePageHeader = () => {
         setPopup(false)
     }
 
-    const ListItem = ({ href, title }) => {
-        return (
-            <li>
-                <Link href={href} className="font-bold leading-5 tracking-wider">{title}</Link>
-            </li>
-        )
-    }
+
+    const ListItem = ({ href, title, target, rel }) => (
+        <li>
+            <Link href={href} passHref legacyBehavior >
+                <a target={target} rel={rel} className="font-bold leading-5 tracking-wider">
+                    {title}
+                </a>
+            </Link>
+        </li>
+    );
 
     return (
         <>
@@ -41,7 +44,12 @@ const HomePageHeader = () => {
                     {/* Navigation Links */}
                     <nav className="flex justify-around">
                         <ul className="flex space-x-6 items-center">
-                            <ListItem href='/deliverydashboard' title="Delivery Partner with us" />
+                            <ListItem
+                                href="/deliverydashboard"
+                                title="Delivery Partner with us"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            />
                             {
                                 user ?
                                     <>
