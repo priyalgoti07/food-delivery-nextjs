@@ -4,26 +4,23 @@ import React, { useEffect, useState } from 'react';
 import CustomersHeader from '../_components/CustomersHeader';
 import RestaurantFooter from '../_components/RestaurantFooter';
 import { request } from '../lib/request';
-import {
-    FaUser,
-    FaMapMarkerAlt,
-    FaPhone,
-    FaEnvelope,
-    FaShoppingBag,
-    FaClock,
-    FaCheckCircle,
-    FaMotorcycle,
-    FaExclamationTriangle,
-    FaTruck,
-    FaMoneyBillWave,
-    FaStar,
-    FaHistory,
-    FaEdit
+import { 
+  FaUser, 
+  FaMapMarkerAlt, 
+  FaPhone, 
+  FaShoppingBag,
+  FaClock,
+  FaCheckCircle,
+  FaMotorcycle,
+  FaExclamationTriangle,
+  FaMoneyBillWave,
+  FaStar,
+  FaHistory,
+  FaEdit
 } from 'react-icons/fa';
-import { MdRestaurant, MdDeliveryDining, MdLocationOn } from 'react-icons/md';
+import { MdRestaurant, MdLocationOn } from 'react-icons/md';
 
 const Profile = () => {
-
     const [user, setUser] = useState(null);
     const [myOrders, setMyOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -47,7 +44,6 @@ const Profile = () => {
             }
         }
     }, []);
-
 
     const getMyOrders = async () => {
         if (!user?._id) {
@@ -83,8 +79,12 @@ const Profile = () => {
     };
 
     useEffect(() => {
-        getMyOrders();
-    }, []);
+        if (user) {
+            getMyOrders();
+        } else {
+            setLoading(false);
+        }
+    }, [user]);
 
     // Filter orders based on active tab
     const filteredOrders = myOrders.filter(order => {
@@ -98,33 +98,33 @@ const Profile = () => {
     // Get status badge configuration
     const getStatusConfig = (status) => {
         const configs = {
-            'pending': {
+            'pending': { 
                 color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
                 icon: <FaClock className="w-3 h-3" />,
                 label: 'Pending'
             },
-            'confirmed': {
+            'confirmed': { 
                 color: 'bg-blue-100 text-blue-800 border-blue-200',
                 icon: <FaCheckCircle className="w-3 h-3" />,
                 label: 'Confirmed'
             },
-            'on the way': {
+            'on the way': { 
                 color: 'bg-purple-100 text-purple-800 border-purple-200',
                 icon: <FaMotorcycle className="w-3 h-3" />,
                 label: 'On the Way'
             },
-            'delivered': {
+            'delivered': { 
                 color: 'bg-green-100 text-green-800 border-green-200',
                 icon: <FaCheckCircle className="w-3 h-3" />,
                 label: 'Delivered'
             },
-            'failed to deliver': {
+            'failed to deliver': { 
                 color: 'bg-red-100 text-red-800 border-red-200',
                 icon: <FaExclamationTriangle className="w-3 h-3" />,
                 label: 'Cancelled'
             }
         };
-        return configs[status] || {
+        return configs[status] || { 
             color: 'bg-gray-100 text-gray-800 border-gray-200',
             icon: <FaClock className="w-3 h-3" />,
             label: status
@@ -133,6 +133,7 @@ const Profile = () => {
 
     // Format date
     const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
         const date = new Date(dateString);
         return date.toLocaleDateString('en-IN', {
             day: 'numeric',
@@ -141,6 +142,23 @@ const Profile = () => {
         });
     };
 
+    // Loading state while checking authentication
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50">
+                <CustomersHeader />
+                <div className="container mx-auto px-4 pt-32 pb-12">
+                    <div className="flex flex-col items-center justify-center min-h-[60vh]">
+                        <div className="w-16 h-16 border-t-2 border-orange-500 rounded-full animate-spin mb-4"></div>
+                        <p className="text-gray-600">Loading your profile...</p>
+                    </div>
+                </div>
+                <RestaurantFooter />
+            </div>
+        );
+    }
+
+    // No user found (not logged in)
     if (!user) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50">
@@ -168,7 +186,7 @@ const Profile = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50">
             <CustomersHeader />
-
+            
             <div className="container mx-auto px-4 pt-28 pb-12">
                 {/* Profile Header */}
                 <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-orange-100">
@@ -191,7 +209,7 @@ const Profile = () => {
                                 </div>
                             </div>
                         </div>
-
+                        
                         <div className="flex flex-wrap gap-3">
                             <button
                                 onClick={() => alert('Edit profile feature coming soon!')}
@@ -306,20 +324,15 @@ const Profile = () => {
 
                             {/* Orders List */}
                             <div className="p-6">
-                                {loading ? (
-                                    <div className="flex flex-col items-center justify-center py-12">
-                                        <div className="w-12 h-12 border-t-2 border-orange-500 rounded-full animate-spin mb-4"></div>
-                                        <p className="text-gray-600">Loading your orders...</p>
-                                    </div>
-                                ) : filteredOrders.length === 0 ? (
+                                {filteredOrders.length === 0 ? (
                                     <div className="text-center py-12">
                                         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
                                             <FaShoppingBag className="w-8 h-8 text-gray-400" />
                                         </div>
                                         <h3 className="text-lg font-semibold text-gray-700 mb-2">No orders found</h3>
                                         <p className="text-gray-500 mb-6">
-                                            {activeTab === 'all'
-                                                ? "You haven't placed any orders yet."
+                                            {activeTab === 'all' 
+                                                ? "You haven't placed any orders yet." 
                                                 : `No ${activeTab} orders at the moment.`}
                                         </p>
                                         <button
@@ -335,7 +348,7 @@ const Profile = () => {
                                             const statusConfig = getStatusConfig(order.status);
                                             return (
                                                 <div
-                                                    key={index}
+                                                    key={order._id || index}
                                                     className="border border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all duration-300"
                                                 >
                                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
@@ -352,18 +365,18 @@ const Profile = () => {
                                                             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                                                                 <span className="flex items-center gap-1">
                                                                     <MdRestaurant className="w-3 h-3" />
-                                                                    {order.data.name}
+                                                                    {order.data?.name || 'Order'}
                                                                 </span>
                                                                 <span className="hidden sm:inline">•</span>
                                                                 <span className="flex items-center gap-1">
                                                                     <FaMoneyBillWave className="w-3 h-3" />
-                                                                    ₹{order.amount}
+                                                                    ₹{order.amount || 0}
                                                                 </span>
                                                             </div>
                                                         </div>
-
+                                                        
                                                         <div className="text-right">
-                                                            <p className="text-2xl font-bold text-green-600">₹{order.amount}</p>
+                                                            <p className="text-2xl font-bold text-green-600">₹{order.amount || 0}</p>
                                                             {order.createdAt && (
                                                                 <p className="text-sm text-gray-500">
                                                                     {formatDate(order.createdAt)}
@@ -373,18 +386,24 @@ const Profile = () => {
                                                     </div>
 
                                                     {/* Delivery Details */}
-                                                    <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                                                        <div className="flex items-start gap-2">
-                                                            <MdLocationOn className="text-gray-500 mt-1 flex-shrink-0" />
-                                                            <div>
-                                                                <p className="font-medium text-gray-700">Delivery Address</p>
-                                                                <p className="text-gray-600">{order.data.address}, {order.data.city}</p>
-                                                                <p className="text-sm text-gray-500 mt-1">
-                                                                    Contact: {order.data.contact}
-                                                                </p>
+                                                    {order.data && (
+                                                        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                                                            <div className="flex items-start gap-2">
+                                                                <MdLocationOn className="text-gray-500 mt-1 flex-shrink-0" />
+                                                                <div>
+                                                                    <p className="font-medium text-gray-700">Delivery Address</p>
+                                                                    <p className="text-gray-600">
+                                                                        {order.data.address || ''}, {order.data.city || ''}
+                                                                    </p>
+                                                                    {order.data.contact && (
+                                                                        <p className="text-sm text-gray-500 mt-1">
+                                                                            Contact: {order.data.contact}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    )}
 
                                                     {/* Order Actions */}
                                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -405,7 +424,7 @@ const Profile = () => {
                                                                 </button>
                                                             )}
                                                         </div>
-
+                                                        
                                                         {['pending', 'confirmed'].includes(order.status) && (
                                                             <button
                                                                 onClick={() => alert('Cancel order feature coming soon!')}
@@ -423,7 +442,7 @@ const Profile = () => {
                             </div>
 
                             {/* Summary */}
-                            {!loading && filteredOrders.length > 0 && (
+                            {filteredOrders.length > 0 && (
                                 <div className="border-t border-gray-200 p-4 bg-gray-50">
                                     <div className="flex justify-between items-center">
                                         <div>
