@@ -1,36 +1,155 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🍔 Yukky – Food Delivery Web Application
 
-## Getting Started
+Yukky is a modern food delivery web application inspired by **Swiggy**, built using **Next.js** and **MongoDB**. It provides a smooth customer ordering experience along with a dedicated **Delivery Partner** flow for managing orders. The application is deployed live on **Netlify**.
 
-First, run the development server:
+🌐 **Live URL:** [https://yukky.netlify.app/](https://yukky.netlify.app/)
+
+---
+
+## 🚀 Features Overview
+
+### 👤 User Authentication
+
+* **Email OTP Login**
+
+  * Secure login using **Email-based OTP** authentication
+  * Powered by **Google Email Service**
+  * Environment variable used: `EMAIL_SERVICE`
+
+* **Sign in with Google**
+
+  * One-click authentication using **Google OAuth**
+  * Environment variable used: `GOOGLE_CLIENT_ID`
+
+---
+
+### 🛒 Customer Features
+
+* Swiggy-like **Homepage UI** branded as **Yukky**
+* Browse restaurants and food items
+* Add items to cart
+* **Cart Management**
+
+  * Add / remove items
+  * Increase or decrease quantity
+  * Dynamic price calculation
+* Seamless checkout flow
+
+---
+
+### 🚚 Delivery Partner Module
+
+* **“Delivery Partner with Us”** opens in a **new browser tab**
+* Dedicated Delivery Partner login page
+* Delivery partner dashboard to:
+
+  * View assigned orders
+  * Manage order status (pickup / delivered)
+  * Track ongoing deliveries
+
+---
+
+## 🧑‍💻 Tech Stack
+
+### Frontend
+
+* **Next.js** (React Framework)
+* JavaScript / JSX
+* Responsive UI inspired by Swiggy
+
+### Backend
+
+* **MongoDB** (Database)
+* API routes using Next.js
+
+### Authentication & Services
+
+* Google Email Service (OTP emails)
+* Google OAuth (Sign in with Google)
+
+### Deployment
+
+* **Netlify** (Production Deployment)
+
+---
+
+## 🔐 Environment Variables
+
+Create a `.env` file in the root directory and add the following:
+
+```env
+EMAIL_SERVICE=your_google_email_service
+GOOGLE_CLIENT_ID=your_google_client_id
+MONGODB_URI=your_mongodb_connection_string
+```
+
+> ⚠️ Never commit your `.env` file to version control.
+
+---
+
+## 📦 Installation & Setup
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/priyalgoti07/food-delivery-nextjs.git
+```
+
+2. Navigate to the project directory
+
+```bash
+cd yukky
+```
+
+3. Install dependencies
+
+```bash
+npm install
+```
+
+4. Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open in browser
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🌍 Deployment
 
-To learn more about Next.js, take a look at the following resources:
+The application is deployed on **Netlify**.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Live URL:
+👉 [https://yukky.netlify.app/](https://yukky.netlify.app/)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 📸 UI Inspiration
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+* Swiggy (Design & User Experience)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 📌 Future Enhancements
+
+* Online payment gateway integration
+* Real-time order tracking
+* Admin dashboard
+* Push notifications
+* Ratings & reviews system
+
+---
+
+## 🙌 Author
+
+**Yukky** – Deliciousness Delivered 🍕
+
+---
+
+⭐ If you like this project, don’t forget to give it a star!
