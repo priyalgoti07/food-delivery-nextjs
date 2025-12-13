@@ -1,143 +1,223 @@
+// RestaurantSignUp.jsx - Updated Design
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 import { request } from '../lib/request';
+import { FaBuilding, FaMapMarkerAlt, FaPhone, FaCity, FaKey, FaEnvelope } from 'react-icons/fa';
 
 const RestaurantSignUp = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [cpassword, setCPassword] = useState('');
-  const [name, setName] = useState('');
-  const [city, setCity] = useState('');
-  const [address, setAddress] = useState('');
-  const [contact, setContact] = useState('');
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+    cpassword: '',
+    name: '',
+    city: '',
+    address: '',
+    contact: ''
+  });
+  
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const [error, setError] = useState(false);
-  const [passwordError, setPasswordError] = useState(false)
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    let isValid = true;
+
+    // Check all required fields
+    Object.keys(form).forEach(key => {
+      if (!form[key] && key !== 'cpassword') {
+        newErrors[key] = `Please enter ${key === 'cpassword' ? 'confirm password' : key}`;
+        isValid = false;
+      }
+    });
+
+    // Email validation
+    if (form.email && !/^\S+@\S+\.\S+$/.test(form.email)) {
+      newErrors.email = "Invalid email format";
+      isValid = false;
+    }
+
+    // Password validation
+    if (form.password && form.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+      isValid = false;
+    }
+
+    // Password match validation
+    if (form.password !== form.cpassword) {
+      newErrors.cpassword = "Passwords do not match";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
 
   const handleSubmit = async () => {
-    let hasError = false;
+    if (!validateForm()) return;
 
-    // Reset all errors
-    setError(false);
-    setPasswordError(false);
-
-    // Validation for empty fields
-    if (!email || !password || !cpassword || !name || !city || !address || !contact) {
-      setError(true);
-      hasError = true;
-    }
-
-    // Password mismatch validation
-    if (password !== cpassword) {
-      setPasswordError(true);
-      hasError = true;
-    }
-
-    // If any error exists, stop here
-    if (hasError) return;
+    setIsLoading(true);
     try {
-      const data = await request.post('/api/restaurant', {
-        email,
-        password,
-        name,
-        city,
-        address,
-        contact,
-      });
+      const { cpassword, ...rest } = form;
+      const data = await request.post('/api/restaurant', rest);
       if (data.success) {
         const { result } = data
         delete result.password
         localStorage.setItem("restaurantUser", JSON.stringify(result))
         router.push("/restaurant/dashboard")
-        alert("User add Successfully")
       } else {
         alert("Signup failed. Try again.");
       }
     } catch (error) {
       console.error("Error during signup", error)
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-  }
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
+  };
+
+  const inputFields = [
+    {
+      name: 'name',
+      placeholder: 'Restaurant Name',
+      icon: FaBuilding,
+      type: 'text'
+    },
+    {
+      name: 'email',
+      placeholder: 'Email Address',
+      icon: FaEnvelope,
+      type: 'text'
+    },
+    {
+      name: 'password',
+      placeholder: 'Password (min 6 characters)',
+      icon: FaKey,
+      type: 'password'
+    },
+    {
+      name: 'cpassword',
+      placeholder: 'Confirm Password',
+      icon: FaKey,
+      type: 'password'
+    },
+    {
+      name: 'city',
+      placeholder: 'City',
+      icon: FaCity,
+      type: 'text'
+    },
+    {
+      name: 'address',
+      placeholder: 'Full Address',
+      icon: FaMapMarkerAlt,
+      type: 'text'
+    },
+    {
+      name: 'contact',
+      placeholder: 'Contact Number',
+      icon: FaPhone,
+      type: 'text'
+    }
+  ];
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-1/4bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-        <input
-          type="text"
-          name="email"
-          placeholder="Enter email id"
-          className="w-full p-2 mb-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        {error && !email && <p className='text-red-600 mt-[-7px] text-[12px]'>Enter email id</p>}
-        <input
-          type="password"
-          name='password-text'
-          placeholder="Enter password"
-          className="w-full p-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          autoComplete="new-password"
-        />
-        {error && !password && <p className='text-red-600 mt-[-7px] text-[12px]'>Enter password</p>}
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {inputFields.map((field) => (
+          <div key={field.name} className={field.name === 'address' ? 'md:col-span-2' : ''}>
+            <label className="block text-sm font-medium text-gray-700 mb-2 capitalize">
+              {field.name.replace(/([A-Z])/g, ' $1').trim()}
+            </label>
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <field.icon />
+              </div>
+              <input
+                type={field.type}
+                name={field.name}
+                placeholder={field.placeholder}
+                className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all ${errors[field.name] 
+                  ? 'border-red-300 focus:ring-red-200 bg-red-50' 
+                  : 'border-gray-300 focus:ring-orange-200 focus:border-orange-300'
+                }`}
+                value={form[field.name]}
+                onChange={handleChange}
+                onKeyPress={handleKeyPress}
+                autoComplete={field.type === 'password' ? 'new-password' : 'off'}
+              />
+            </div>
+            {errors[field.name] && (
+              <p className="mt-2 text-sm text-red-600 flex items-center">
+                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {errors[field.name]}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
 
-        <input
-          type="password"
-          placeholder="Enter Confirm-password"
-          className="w-full p-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={cpassword}
-          onChange={(e) => setCPassword(e.target.value)}
-        />
-        {error && !cpassword && <p className='text-red-600 mt-[-7px] text-[12px]'>Enter confirm password</p>}
+      <div className="bg-blue-50 rounded-xl p-4 mt-4">
+        <div className="flex items-start">
+          <svg className="w-5 h-5 text-blue-500 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+          </svg>
+          <p className="text-sm text-blue-700">
+            By signing up, you agree to our Terms of Service and Privacy Policy. We'll send you account-related emails occasionally.
+          </p>
+        </div>
+      </div>
 
-        {passwordError &&
-          <p className='text-red-600 mt-[-7px] text-[12px]'>Password and Confirm password not match</p>
-        }
-        <input
-          type="text"
-          placeholder="Enter restaurant name"
-          className="w-full p-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        {error && !name && <p className='text-red-600 mt-[-7px] text-[12px]'>Enter email name</p>}
+      <button
+        type='submit'
+        className="w-full py-3 mt-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+        onClick={handleSubmit}
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <div className="flex items-center justify-center">
+            <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Creating Account...
+          </div>
+        ) : (
+          'Create Restaurant Account'
+        )}
+      </button>
 
-        <input
-          type="text"
-          placeholder="Enter city"
-          className="w-full p-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-        />
-        {error && !city && <p className='text-red-600 mt-[-7px] text-[12px]'>Enter city</p>}
-
-        <input
-          type="text"
-          placeholder="Enter full address"
-          className="w-full p-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-        />
-        {error && !address && <p className='text-red-600 mt-[-7px] text-[12px]'>Enter address</p>}
-
-        <input
-          type="text"
-          placeholder="Enter contact"
-          className="w-full p-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={contact}
-          onChange={(e) => setContact(e.target.value)}
-        />
-        {error && !contact && <p className='text-red-600 mt-[-7px] text-[12px]'>Enter contact</p>}
-
-        <button type='submit' className="w-full p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer"
-          onClick={handleSubmit}
-        >
-          SignUp
-        </button>
+      <div className="text-center mt-4">
+        <p className="text-sm text-gray-600">
+          Already have an account?{' '}
+          <button
+            onClick={() => window.location.reload()} // This will trigger the parent component's toggle
+            className="text-gradient bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent font-semibold hover:opacity-80 transition-opacity"
+          >
+            Sign in here
+          </button>
+        </p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default RestaurantSignUp
+export default RestaurantSignUp;
