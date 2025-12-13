@@ -40,12 +40,36 @@ Yukky is a modern food delivery web application inspired by **Swiggy**, built us
 ### 🚚 Delivery Partner Module
 
 * **“Delivery Partner with Us”** opens in a **new browser tab**
-* Dedicated Delivery Partner login page
-* Delivery partner dashboard to:
+* Dedicated **Delivery Partner Login & Signup** pages
+* Secure authentication for delivery partners
+* Delivery Partner dashboard to:
 
   * View assigned orders
-  * Manage order status (pickup / delivered)
-  * Track ongoing deliveries
+  * Manage order status (pickup / out for delivery / delivered)
+  * View order details and delivery addresses
+  * Track ongoing and completed deliveries
+
+---
+
+### 🏪 Restaurant Dashboard Module
+
+* Separate **Restaurant Login & Signup** pages
+* Secure restaurant user authentication
+* Restaurant Dashboard features:
+
+  * Add, edit, and delete food items
+  * Manage menu categories and pricing
+  * View incoming customer orders
+  * Update order status (accepted / preparing / ready)
+  * Dashboard overview of total orders and active items
+
+---
+
+### 👥 User Management
+
+* Customer login using Email OTP and Google Sign-In
+* Restaurant and Delivery Partner role-based authentication
+* Each user type is redirected to their respective dashboard after login
 
 ---
 
@@ -142,7 +166,6 @@ Live URL:
 * Real-time order tracking
 * Admin dashboard
 * Push notifications
-* Ratings & reviews system
 
 ---
 
