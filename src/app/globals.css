@@ -7,15 +7,39 @@
     font-style: normal;
 }
 
-/* Hide scrollbar but allow scrolling */
+/* Add these styles to your global CSS file */
+
+/* Hide scrollbar for carousel */
 .no-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
     scrollbar-width: none;
     /* Firefox */
-    -ms-overflow-style: none;
-    /* IE/Edge */
 }
 
 .no-scrollbar::-webkit-scrollbar {
     display: none;
-    /* Chrome, Safari, Opera */
+    /* Chrome, Safari and Opera */
+}
+
+/* Smooth transitions */
+* {
+    transition-property: color, background-color, border-color, transform, box-shadow;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+/* Line clamp utility */
+.line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
 }

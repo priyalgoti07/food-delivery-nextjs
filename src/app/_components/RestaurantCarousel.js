@@ -1,14 +1,25 @@
 // components/RestaurantCarousel.jsx
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import RestaurentCard from "./RestaurentCard";
 import { GoArrowLeft, GoArrowRight } from "react-icons/go";
 import FoodItems from "./FoodItems";
 
-const RestaurantCarousel = ({ restaurants, foodList, ref }) => {
+const RestaurantCarousel = ({ 
+  restaurants, 
+  foodList, 
+  ref, 
+  title = "Discover best restaurants",
+  type = "restaurants" // "restaurants" or "food"
+}) => {
+    const containerRef = useRef(null);
+    const [showLeftArrow, setShowLeftArrow] = useState(false);
+    const [showRightArrow, setShowRightArrow] = useState(false);
 
     const scroll = (direction) => {
-        const container = ref.current;
-        const scrollAmount = 350; // Adjust as per card width
+        const container = ref?.current || containerRef.current;
+        if (!container) return;
+        
+        const scrollAmount = type === "food" ? 200 : 350; // Different scroll amounts
         if (direction === "left") {
             container.scrollBy({ left: -scrollAmount, behavior: "smooth" });
         } else {
@@ -16,44 +27,98 @@ const RestaurantCarousel = ({ restaurants, foodList, ref }) => {
         }
     };
 
+    const checkScroll = () => {
+        const container = ref?.current || containerRef.current;
+        if (!container) return;
+        
+        setShowLeftArrow(container.scrollLeft > 0);
+        setShowRightArrow(
+            container.scrollLeft < container.scrollWidth - container.clientWidth - 10
+        );
+    };
+
+    useEffect(() => {
+        const container = ref?.current || containerRef.current;
+        if (!container) return;
+        
+        checkScroll();
+        container.addEventListener("scroll", checkScroll);
+        window.addEventListener("resize", checkScroll);
+        
+        return () => {
+            container.removeEventListener("scroll", checkScroll);
+            window.removeEventListener("resize", checkScroll);
+        };
+    }, [restaurants, foodList]);
+
+    const currentRef = ref || containerRef;
+
     return (
         <div className="relative w-full">
-            {/* Heading */}
-            <div className={`flex mb-4 ${restaurants?.length > 0 ? "justify-between" : "justify-end"}`}>
-                {
-                    restaurants?.length > 0 &&
-                    <h2 className="text-2xl font-bold m1-4 pl-4">
-                        Discover best restaurants
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6 px-4">
+                <div>
+                    <h2 className="text-xl font-bold text-gray-900">
+                        {title}
                     </h2>
-                }
-                {/* Navigation buttons */}
-                <div className="flex gap-2">
-                    <button
-                        className="h-8 w-8 bg-white shadow-md rounded-full p-2 cursor-pointer hover:bg-gray-200"
-                        onClick={() => scroll("left")}
-                    >
-                        <GoArrowLeft />
-                    </button>
-                    <button
-                        className="h-8 w-8 bg-white shadow-md rounded-full p-2 cursor-pointer hover:bg-gray-200"
-                        onClick={() => scroll("right")}
-                    >
-                        <GoArrowRight />
-                    </button>
+                    <p className="text-sm text-gray-600 mt-1">
+                        {(restaurants?.length || foodList?.length || 0)} places to explore
+                    </p>
                 </div>
+                
+                {/* Navigation buttons - Show only if there's content */}
+                {(restaurants?.length > 0 || foodList?.length > 0) && (
+                    <div className="flex items-center gap-2">
+                        <button
+                            className={`h-8 w-8 bg-white shadow rounded-full flex items-center justify-center transition-all duration-200 ${
+                                showLeftArrow 
+                                    ? "opacity-100 cursor-pointer hover:bg-gray-50" 
+                                    : "opacity-40 cursor-not-allowed"
+                            }`}
+                            onClick={() => showLeftArrow && scroll("left")}
+                            disabled={!showLeftArrow}
+                            aria-label="Scroll left"
+                        >
+                            <GoArrowLeft className="text-gray-700" />
+                        </button>
+                        <button
+                            className={`h-8 w-8 bg-white shadow rounded-full flex items-center justify-center transition-all duration-200 ${
+                                showRightArrow 
+                                    ? "opacity-100 cursor-pointer hover:bg-gray-50" 
+                                    : "opacity-40 cursor-not-allowed"
+                            }`}
+                            onClick={() => showRightArrow && scroll("right")}
+                            disabled={!showRightArrow}
+                            aria-label="Scroll right"
+                        >
+                            <GoArrowRight className="text-gray-700" />
+                        </button>
+                    </div>
+                )}
             </div>
 
-            {/* Cards container */}
+            {/* Content container */}
             <div
-                ref={ref}
-                className={`flex ${restaurants?.length > 0 ? "gap-4" : "gap-12"}  overflow-x-auto overflow-y-hidden scroll-smooth flex gap-4 px-4 py-2 no-scrollbar`}
+                ref={currentRef}
+                className={`overflow-x-auto scroll-smooth no-scrollbar ${
+                    type === "food" 
+                        ? "flex gap-6 px-4 pb-2" 
+                        : "flex gap-4 px-4 pb-4"
+                }`}
+                style={{
+                    scrollPadding: "0 16px",
+                }}
             >
-                {foodList ?
-                    <FoodItems foodList={foodList} />
-                    :
+                {foodList ? (
+                    <FoodItems 
+                        foodList={foodList} 
+                        type={type}
+                    />
+                ) : (
                     restaurants?.map((item) => (
                         <RestaurentCard key={item._id} data={item} />
-                    ))}
+                    ))
+                )}
             </div>
         </div>
     );

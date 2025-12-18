@@ -574,7 +574,8 @@ const CommonDrawer = ({
                                 <span className="text-gray-500 text-sm">OR</span>
                                 <div className="flex-1 border-t border-gray-300"></div>
                             </div>
-                            <div ref={googleButtonRef} className="w-full"></div>
+                            <div ref={googleButtonRef} className="w-full flex justify-center"
+                                ></div>
                             {googleLoading && (
                                 <p className="text-center text-sm text-gray-500 mt-2">
                                     Signing in with Google...
