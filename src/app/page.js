@@ -196,7 +196,7 @@ export default function Home() {
         className="w-[80%] mx-auto grid grid-cols-1 gap-4 p-4 m-6"
       >
         <main className="p-6">
-          <RestaurantCarousel foodList={foodList} ref={foodScrollRef} />
+          <RestaurantCarousel foodList={foodList} ref={foodScrollRef} title={"Discover best food"} />
         </main>
       </div>
 
